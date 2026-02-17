@@ -85,5 +85,56 @@ This project includes a comparative evaluation measuring:
 6. Repeatability
 
 
+## Development Progress
+
+### ✅ Week 1: Foundation (Complete)
+- Development environment configured
+- AWS account set up
+- GitHub repository initialized
+- Research and planning completed
+
+### ✅ Week 2: Flask Application (Complete)
+- Task Manager API built
+- 6 REST endpoints implemented
+- Web interface created
+- Unit tests written (11 tests, all passing)
+- Local testing successful
+
+### 🔜 Week 3: Containerization (Next)
+- Docker configuration
+- Container build and testing
+
+## Quick Start
+
+### Run the Application
+```bash
+# Navigate to webapp directory
+cd src/webapp
+
+# Create virtual environment
+python -m venv venv
+
+# Activate virtual environment (Windows PowerShell)
+.\venv\Scripts\Activate.ps1
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the application
+python app.py
+```
+
+Access at: http://localhost:5000
+
+### Run Tests
+```bash
+# From project root with venv activated
+pytest tests/unit/test_app.py -v
+```
+
+## API Documentation
+
+See [src/webapp/README.md](src/webapp/README.md) for detailed API documentation.
+
 
 
