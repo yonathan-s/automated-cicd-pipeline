@@ -87,24 +87,57 @@ This project includes a comparative evaluation measuring:
 
 ## Development Progress
 
-### ✅ Week 1: Foundation (Complete)
+### Week 1: Foundation (Complete)
 - Development environment configured
 - AWS account set up
 - GitHub repository initialized
 - Research and planning completed
 
-### ✅ Week 2: Flask Application (Complete)
+### Week 2: Flask Application (Complete)
 - Task Manager API built
 - 6 REST endpoints implemented
 - Web interface created
 - Unit tests written (11 tests, all passing)
 - Local testing successful
 
-### 🔜 Week 3: Containerization (Next)
-- Docker configuration
-- Container build and testing
+### Week 3: Containerization (Complete)
+- Dockerfile created with multi-stage build
+- Docker Compose configuration
+- Container running locally
+- Optimized for production (160MB image)
+- Security: non-root user, health checks
+- Documentation complete
+
+###  Week 4: AWS Manual Deployment (Next)
+- Manual infrastructure setup
+- Baseline metrics collection
 
 ## Quick Start
+## Running with Docker
+
+### Prerequisites
+- Docker Desktop installed
+
+### Quick Start with Docker
+```bash
+# Navigate to webapp directory
+cd src/webapp
+
+# Start with Docker Compose
+docker compose up -d
+
+# View logs
+docker compose logs -f
+
+# Access application
+# Browser: http://localhost:5000
+
+# Stop
+docker compose down
+```
+
+See [src/webapp/DOCKER.md](src/webapp/DOCKER.md) for detailed Docker documentation.
+
 
 ### Run the Application
 ```bash

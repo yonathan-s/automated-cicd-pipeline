@@ -48,16 +48,16 @@ This generates an HTML coverage report in `htmlcov/index.html`
 Current test coverage: **~80%**
 
 Covered areas:
-- ✅ Health check endpoint
-- ✅ Task CRUD operations
-- ✅ Error handling (404, 400)
-- ✅ Input validation
-- ✅ Statistics endpoint
+- Health check endpoint
+- Task CRUD operations
+- Error handling (404, 400)
+- Input validation
+- Statistics endpoint
 
 Not yet covered:
-- ❌ HTML template rendering
-- ❌ CORS functionality
-- ❌ Logging functionality
+- HTML template rendering
+- CORS functionality
+- Logging functionality
 
 ## Writing New Tests
 
