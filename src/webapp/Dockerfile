@@ -1,6 +1,4 @@
-###################
-# BUILD STAGE
-###################
+
 FROM python:3.11-slim as builder
 
 # Set working directory
@@ -19,9 +17,7 @@ RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 RUN pip install --no-cache-dir -r requirements.txt
 
-###################
-# RUNTIME STAGE
-###################
+
 FROM python:3.11-slim
 
 # Create non-root user for security
