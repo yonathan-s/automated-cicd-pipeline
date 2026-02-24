@@ -11,7 +11,7 @@ This document explains how to build and run using Docker.
 
 ## Quick Start
 
-### Using Docker Compose (Recommended)
+### Using Docker Compose 
 ```bash
 # Start the application
 docker compose up -d
