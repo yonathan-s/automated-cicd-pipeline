@@ -235,14 +235,10 @@ These limitations are intentional for demonstration purposes.
 - Pagination for large task lists
 - WebSocket support for real-time updates
 
-## Contributing
-
-This is a demonstration project for CI/CD pipeline evaluation. Not accepting contributions.
-
 ## License
 
 MIT License
 
 ## Author
 
-[Your Name] - Computer Science Individual Project
+Yonathan Surafel - Computer Science Individual Project
