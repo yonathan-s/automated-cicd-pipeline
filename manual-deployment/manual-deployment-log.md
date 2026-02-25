@@ -286,3 +286,67 @@
   - Provisioning takes several minutes
   - DNS name is long and complex - easy to make typos
   - This is a critical component - if misconfigured, application won't be accessible
+
+
+  ### Step 14: Create ECS Service
+- **Start time:** [Your time]
+- **End time:** [Your time]
+- **Duration:** [Minutes]
+- **Actions taken:**
+  - Created ECS service in task-manager-cluster
+  - Selected task definition: task-manager-task:1
+  - Set desired count: 2 tasks
+  - Configured networking: private subnets, ECS security group
+  - Integrated with ALB and target group
+  - Waited for tasks to start and become healthy
+  - Verified 2 running tasks
+- **Screenshots:**
+  - service-creation-compute.png
+  - service-creation-deployment.png
+  - service-creation-networking.png
+  - service-creation-load-balancing.png
+  - service-creating.png
+  - service-active.png
+  - tasks-running.png
+- **Difficulty (1-5):** 5
+- **Errors encountered:**
+  - Initially selected public subnets (should be private for tasks)
+  - Corrected before creating service
+  - First task failed to start (checked logs - typo in image URI in task definition)
+  - Updated task definition to revision 2
+  - Re-deployed service with new revision
+- **Notes:**
+  - Most complex creation yet - brings together all previous components
+  - Many configuration options and dependencies
+  - Easy to select wrong subnets (public vs private)
+  - Task failures require checking CloudWatch logs
+  - Long wait time for service to stabilize
+  - Must understand entire architecture to configure correctly
+
+### Step 15: Verify and Test Deployment
+- **Start time:** [Your time]
+- **End time:** [Your time]
+- **Duration:** [Minutes]
+- **Actions taken:**
+  - Checked target group health (2 healthy targets)
+  - Accessed application via ALB DNS
+  - Tested all CRUD operations
+  - Verified health endpoint
+  - Checked CloudWatch logs
+  - Documented successful deployment
+- **Screenshots:**
+  - target-group-healthy.png
+  - app-via-alb.png
+  - app-create-task.png
+  - app-task-complete.png
+  - app-task-delete.png
+  - health-endpoint-response.png
+  - cloudwatch-logs.png
+- **Difficulty (1-5):** 3
+- **Errors encountered:** None (after fixing service configuration)
+- **Notes:**
+  - Application works correctly via ALB
+  - All functionality operational
+  - Logs flowing to CloudWatch
+  - DNS name is long and hard to remember
+  - No custom domain configured (manual DNS setup is complex)
