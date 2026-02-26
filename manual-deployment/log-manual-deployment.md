@@ -174,179 +174,189 @@
 
 
 ### Step 9: Create ECS Cluster
-- **Start time:** [Your time]
-- **End time:** [Your time]
-- **Duration:** [Minutes]
+- **Start time:** 11:53  
+- **End time:** 12:04  
+- **Duration:** 11 minutes  
 - **Actions taken:**
-  - Navigated to ECS console
-  - Created Fargate cluster
-  - Named: task-manager-cluster
-- **Screenshots:** ecs-console.png, cluster-creation.png, cluster-created.png
-- **Difficulty (1-5):** 2
-- **Errors encountered:** None
-- **Notes:** Simplest step so far. Just naming and selecting Fargate.
+  - Navigated to ECS console  
+  - Created Fargate cluster  
+  - Named: `task-manager-cluster`  
+- **Screenshots:** `ecs-console.png`, `cluster-creation.png`, `cluster-created.png`  
+- **Difficulty (1-5):** 2  
+- **Errors encountered:** None  
+- **Notes:** Simplest step so far. Just naming and selecting Fargate.  
+
+---
 
 ### Step 10: Create CloudWatch Log Group
-- **Start time:** [Your time]
-- **End time:** [Your time]
-- **Duration:** [Minutes]
+- **Start time:** 12:07  
+- **End time:** 12:18  
+- **Duration:** 11 minutes  
 - **Actions taken:**
-  - Created log group for ECS tasks
-  - Name: /ecs/task-manager
-  - Set retention to 1 week
-- **Screenshots:** cloudwatch-logs.png, log-group-created.png
-- **Difficulty (1-5):** 2
-- **Errors encountered:** None
-- **Notes:** Need to remember exact log group name for task definition
+  - Created log group for ECS tasks  
+  - Name: `/ecs/task-manager`  
+  - Set retention to 1 week  
+- **Screenshots:** `cloudwatch-logs.png`, `log-group-created.png`  
+- **Difficulty (1-5):** 2  
+- **Errors encountered:** None  
+- **Notes:** Need to remember exact log group name for task definition  
+
+---
 
 ### Step 11: Create ECS Task Definition
-- **Start time:** [Your time]
-- **End time:** [Your time]
-- **Duration:** [Minutes]
+- **Start time:** 13:02  
+- **End time:** 13:49  
+- **Duration:** 47 minutes  
 - **Actions taken:**
-  - Created task definition with Fargate
-  - Set CPU: 0.5 vCPU, Memory: 1GB
-  - Configured container with ECR image URI
-  - Set port mapping: 5000
-  - Added environment variable: FLASK_ENV=production
-  - Configured CloudWatch logging
-  - Added health check
-  - Referenced both IAM roles created on Day 3
+  - Created task definition with Fargate  
+  - Set CPU: 0.5 vCPU, Memory: 1GB  
+  - Configured container with ECR image URI  
+  - Set port mapping: 5000  
+  - Added environment variable: `FLASK_ENV=production`  
+  - Configured CloudWatch logging  
+  - Added health check  
+  - Referenced both IAM roles created earlier  
 - **Screenshots:**
-  - task-def-infrastructure.png
-  - task-def-container-image.png
-  - task-def-port-mapping.png
-  - task-def-env-vars.png
-  - task-def-logging.png
-  - task-def-created.png
-  - task-def-details.png
-- **Difficulty (1-5):** 5
+  - `task-def-infrastructure.png`  
+  - `task-def-container-image.png`  
+  - `task-def-port-mapping.png`  
+  - `task-def-env-vars.png`  
+  - `task-def-logging.png`  
+  - `task-def-created.png`  
+  - `task-def-details.png`  
+- **Difficulty (1-5):** 5  
 - **Errors encountered:**
-  - Initially forgot to add port mapping (error on create)
-  - Typo in ECR image URI (had to edit task definition)
-  - Forgot to select task execution role (error on create)
+  - Initially forgot to add port mapping (error on create)  
+  - Typo in ECR image URI (had to edit task definition)  
+  - Forgot to select task execution role (error on create)  
 - **Notes:**
-  - Most complex configuration yet
-  - Many fields to fill correctly
-  - Must have exact ECR URI, role ARNs, log group name
-  - Easy to miss required fields
-  - Form is long and requires scrolling
-  - Error messages not always clear about what's wrong
-  - This complexity highlights benefit of IaC
+  - Most complex configuration yet  
+  - Many fields to fill correctly  
+  - Must have exact ECR URI, role ARNs, log group name  
+  - Easy to miss required fields  
+  - Form is long and requires scrolling  
+  - Error messages not always clear about what's wrong  
+  - This complexity highlights benefit of IaC  
 
+---
 
 ### Step 12: Create Target Group
-- **Start time:** [Your time]
-- **End time:** [Your time]
-- **Duration:** [Minutes]
+- **Start time:** 13:52  
+- **End time:** 14:09  
+- **Duration:** 17 minutes  
 - **Actions taken:**
-  - Created target group with IP address type (for Fargate)
-  - Named: task-manager-tg
-  - Protocol HTTP, Port 5000
-  - Configured health check on /health endpoint
-  - Left targets empty (ECS will register)
-- **Screenshots:** target-group-creation.png, health-check-config.png, target-group-created.png
-- **Difficulty (1-5):** 3
+  - Created target group with IP address type (for Fargate)  
+  - Named: `task-manager-tg`  
+  - Protocol HTTP, Port 5000  
+  - Configured health check on `/health` endpoint  
+  - Left targets empty (ECS will register)  
+- **Screenshots:** `target-group-creation.png`, `health-check-config.png`, `target-group-created.png`  
+- **Difficulty (1-5):** 3  
 - **Errors encountered:**
-  - Initially selected "Instances" type instead of "IP addresses" (had to recreate)
+  - Initially selected "Instances" type instead of "IP addresses" (had to recreate)  
 - **Notes:**
-  - Must use IP addresses for Fargate (not EC2 instances)
-  - Health check configuration critical for proper operation
-  - Empty targets normal at this stage
+  - Must use IP addresses for Fargate (not EC2 instances)  
+  - Health check configuration critical for proper operation  
+  - Empty targets normal at this stage  
+
+---
 
 ### Step 13: Create Application Load Balancer
-- **Start time:** [Your time]
-- **End time:** [Your time]
-- **Duration:** [Minutes]
+- **Start time:** 14:12  
+- **End time:** 14:46  
+- **Duration:** 34 minutes  
 - **Actions taken:**
-  - Created internet-facing ALB
-  - Selected task-manager-vpc
-  - Placed in both public subnets (eu-west-2a, eu-west-2b)
-  - Attached ALB security group
-  - Configured listener HTTP:80 → target group
-  - Waited for ALB to become active (5 minutes)
-  - Noted DNS name for application access
+  - Created internet-facing ALB  
+  - Selected `task-manager-vpc`  
+  - Placed in both public subnets (`eu-west-2a`, `eu-west-2b`)  
+  - Attached ALB security group  
+  - Configured listener HTTP:80 → target group  
+  - Waited for ALB to become active (approx. 5 minutes)  
+  - Noted DNS name for application access  
 - **Screenshots:**
-  - alb-type-selection.png
-  - alb-basic-config.png
-  - alb-network-mapping.png
-  - alb-security-groups.png
-  - alb-listener-config.png
-  - alb-creating.png
-  - alb-active.png
-  - alb-dns-name.png
-- **Difficulty (1-5):** 4
+  - `alb-type-selection.png`  
+  - `alb-basic-config.png`  
+  - `alb-network-mapping.png`  
+  - `alb-security-groups.png`  
+  - `alb-listener-config.png`  
+  - `alb-creating.png`  
+  - `alb-active.png`  
+  - `alb-dns-name.png`  
+- **Difficulty (1-5):** 4  
 - **Errors encountered:**
-  - Accidentally selected private subnets initially (error - ALB can't be internet-facing in private subnets)
-  - Had to go back and select public subnets
-  - Forgot to remove default security group (had multiple SGs attached)
+  - Accidentally selected private subnets initially (ALB cannot be internet-facing in private subnets)  
+  - Had to go back and select public subnets  
+  - Forgot to remove default security group (multiple SGs attached)  
 - **Notes:**
-  - ALB must be in public subnets for internet access
-  - Must carefully select correct subnets from dropdown
-  - Provisioning takes several minutes
-  - DNS name is long and complex - easy to make typos
-  - This is a critical component - if misconfigured, application won't be accessible
+  - ALB must be in public subnets for internet access  
+  - Must carefully select correct subnets from dropdown  
+  - Provisioning takes several minutes  
+  - DNS name is long and complex — easy to make typos  
+  - This is a critical component — if misconfigured, application will not be accessible  
 
+---
 
-  ### Step 14: Create ECS Service
-- **Start time:** [Your time]
-- **End time:** [Your time]
-- **Duration:** [Minutes]
+### Step 14: Create ECS Service
+- **Start time:** 14:50  
+- **End time:** 15:38  
+- **Duration:** 48 minutes  
 - **Actions taken:**
-  - Created ECS service in task-manager-cluster
-  - Selected task definition: task-manager-task:1
-  - Set desired count: 2 tasks
-  - Configured networking: private subnets, ECS security group
-  - Integrated with ALB and target group
-  - Waited for tasks to start and become healthy
-  - Verified 2 running tasks
+  - Created ECS service in `task-manager-cluster`  
+  - Selected task definition: `task-manager-task:1`  
+  - Set desired count: 2 tasks  
+  - Configured networking: private subnets, ECS security group  
+  - Integrated with ALB and target group  
+  - Waited for tasks to start and become healthy  
+  - Verified 2 running tasks  
 - **Screenshots:**
-  - service-creation-compute.png
-  - service-creation-deployment.png
-  - service-creation-networking.png
-  - service-creation-load-balancing.png
-  - service-creating.png
-  - service-active.png
-  - tasks-running.png
-- **Difficulty (1-5):** 5
+  - `service-creation-compute.png`  
+  - `service-creation-deployment.png`  
+  - `service-creation-networking.png`  
+  - `service-creation-load-balancing.png`  
+  - `service-creating.png`  
+  - `service-active.png`  
+  - `tasks-running.png`  
+- **Difficulty (1-5):** 5  
 - **Errors encountered:**
-  - Initially selected public subnets (should be private for tasks)
-  - Corrected before creating service
-  - First task failed to start (checked logs - typo in image URI in task definition)
-  - Updated task definition to revision 2
-  - Re-deployed service with new revision
+  - Initially selected public subnets (should be private for tasks)  
+  - Corrected before creating service  
+  - First task failed to start (checked logs — typo in image URI in task definition)  
+  - Updated task definition to revision 2  
+  - Re-deployed service with new revision  
 - **Notes:**
-  - Most complex creation yet - brings together all previous components
-  - Many configuration options and dependencies
-  - Easy to select wrong subnets (public vs private)
-  - Task failures require checking CloudWatch logs
-  - Long wait time for service to stabilize
-  - Must understand entire architecture to configure correctly
+  - Most complex creation yet — brings together all previous components  
+  - Many configuration options and dependencies  
+  - Easy to select wrong subnets (public vs private)  
+  - Task failures require checking CloudWatch logs  
+  - Long wait time for service to stabilize  
+  - Must understand entire architecture to configure correctly  
+
+---
 
 ### Step 15: Verify and Test Deployment
-- **Start time:** [Your time]
-- **End time:** [Your time]
-- **Duration:** [Minutes]
+- **Start time:** 15:41  
+- **End time:** 16:02  
+- **Duration:** 21 minutes  
 - **Actions taken:**
-  - Checked target group health (2 healthy targets)
-  - Accessed application via ALB DNS
-  - Tested all CRUD operations
-  - Verified health endpoint
-  - Checked CloudWatch logs
-  - Documented successful deployment
+  - Checked target group health (2 healthy targets)  
+  - Accessed application via ALB DNS  
+  - Tested all CRUD operations  
+  - Verified health endpoint  
+  - Checked CloudWatch logs  
+  - Documented successful deployment  
 - **Screenshots:**
-  - target-group-healthy.png
-  - app-via-alb.png
-  - app-create-task.png
-  - app-task-complete.png
-  - app-task-delete.png
-  - health-endpoint-response.png
-  - cloudwatch-logs.png
-- **Difficulty (1-5):** 3
-- **Errors encountered:** None (after fixing service configuration)
+  - `target-group-healthy.png`  
+  - `app-via-alb.png`  
+  - `app-create-task.png`  
+  - `app-task-complete.png`  
+  - `app-task-delete.png`  
+  - `health-endpoint-response.png`  
+  - `cloudwatch-logs.png`  
+- **Difficulty (1-5):** 3  
+- **Errors encountered:** None (after fixing service configuration)  
 - **Notes:**
-  - Application works correctly via ALB
-  - All functionality operational
-  - Logs flowing to CloudWatch
-  - DNS name is long and hard to remember
-  - No custom domain configured (manual DNS setup is complex)
+  - Application works correctly via ALB  
+  - All functionality operational  
+  - Logs flowing to CloudWatch  
+  - DNS name is long and hard to remember  
+  - No custom domain configured (manual DNS setup is complex)  
