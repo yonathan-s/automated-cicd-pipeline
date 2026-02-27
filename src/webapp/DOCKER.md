@@ -1,5 +1,5 @@
 # Docker Documentation
-
+I generated this file with claude to reference instructions
 ## Overview
 
 This document explains how to build and run using Docker.

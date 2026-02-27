@@ -218,9 +218,9 @@ This manual deployment will be compared against automated CI/CD deployment in We
 ## Application Status
 
 **Deployment Status:** SUCCESS
-**Application URL:** http://[Your ALB DNS]
-**Running Tasks:** 2/2
-**Target Health:** 2/2 healthy
+**Application URL:** http://task-manager-alb-442717427.eu-west-2.elb.amazonaws.com/
+**Running Tasks:** 1/1 (For now might change to 2)
+**Target Health:** 1/1 healthy
 **CloudWatch Logs:** Active
 **Monitoring Dashboard:** Active
 **Alarms:** Configured

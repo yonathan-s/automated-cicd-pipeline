@@ -23,13 +23,7 @@
   - Retrieved ECR push commands from console (2 mins)  
   - Authenticated Docker to ECR (1 min)  
   - Tagged image (1 min)  
-  - Pushed image to ECR (26 mins - large image)  
-- **Screenshots:**
-  - `ecr-push-commands.png`  
-  - `docker-login-success.png`  
-  - `docker-images-tagged.png`  
-  - `docker-push-progress.png`  
-  - `ecr-image-uploaded.png`  
+  - Pushed image to ECR (26 mins - large image)    
 - **Errors encountered:** 
   - Initial authentication failed (**wrong region specified**)  
   - Had to re-run login command with correct region  
@@ -49,7 +43,6 @@
   - Created VPC with CIDR `10.0.0.0/16`  
   - Enabled DNS hostnames  
   - Enabled DNS resolution  
-- **Screenshots:** `vpc-dashboard.png`, `vpc-created.png`, `vpc-dns-enabled.png`  
 - **Difficulty (1-5):** 2  
 - **Errors encountered:** None  
 - **Notes:** Straightforward but had to look up what **DNS hostnames** means  
@@ -272,21 +265,18 @@
   - Attached ALB security group  
   - Configured listener HTTP:80 → target group  
   - Waited for ALB to become active (approx. 5 minutes)  
-  - Noted DNS name for application access  
-- **Screenshots:**
-  - `alb-type-selection.png`  
-  - `alb-basic-config.png`  
-  - `alb-network-mapping.png`  
-  - `alb-security-groups.png`  
-  - `alb-listener-config.png`  
-  - `alb-creating.png`  
-  - `alb-active.png`  
-  - `alb-dns-name.png`  
+  - Noted DNS name for application access   
 - **Difficulty (1-5):** 4  
 - **Errors encountered:**
   - Accidentally selected private subnets initially (ALB cannot be internet-facing in private subnets)  
   - Had to go back and select public subnets  
   - Forgot to remove default security group (multiple SGs attached)  
+  - Had to reset desired tasks from 2 back to 1 because when I had 2 ECS tasks running with in-memory storage Each task had its own separate memory, so:
+      Request 1 went to Task A (creates task "X")
+      Request 2 went to Task B (doesn't have task "X")
+      Request 3 went to Task A (has task "X")
+      This alternated, making it look like data disappears
+      (I can change desired tasks back to 2 once I've created a shared database that stores changes made from both tasks so it doesn't have this affect on the app)
 - **Notes:**
   - ALB must be in public subnets for internet access  
   - Must carefully select correct subnets from dropdown  
