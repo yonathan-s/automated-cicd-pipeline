@@ -1,6 +1,6 @@
 terraform {
   required_version = ">= 1.0"
-  
+
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -11,7 +11,7 @@ terraform {
 
 provider "aws" {
   region = var.aws_region
-  
+
   default_tags {
     tags = {
       Project     = "task-manager"
@@ -30,7 +30,7 @@ data "aws_availability_zones" "available" {
 # Networking Module
 module "networking" {
   source = "./modules/networking"
-  
+
   vpc_cidr             = var.vpc_cidr
   environment          = var.environment
   availability_zones   = slice(data.aws_availability_zones.available.names, 0, 2)
@@ -41,7 +41,7 @@ module "networking" {
 # Security Module
 module "security" {
   source = "./modules/security"
-  
+
   vpc_id      = module.networking.vpc_id
   environment = var.environment
 }
@@ -49,7 +49,7 @@ module "security" {
 # Compute Module
 module "compute" {
   source = "./modules/compute"
-  
+
   environment                 = var.environment
   vpc_id                      = module.networking.vpc_id
   private_subnet_ids          = module.networking.private_subnet_ids
