@@ -25,7 +25,6 @@ jobs:
     name: Build and Deploy
     runs-on: ubuntu-latest
 
-    # Expose the current (pre-deploy) task definition so the rollback job can use it
     outputs:
       prev_task_def_arn: ${{ steps.capture-prev-taskdef.outputs.prev_task_def_arn }}
 
@@ -46,10 +45,16 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      # Capture the task definition BEFORE we deploy, so rollback can restore it
+      # FIXED: fail if the task definition can't be read (prevents blank output)
       - name: Capture current ECS task definition (pre-deploy)
         id: capture-prev-taskdef
         run: |
+          set -euo pipefail
+
+          echo "Cluster: $ECS_CLUSTER"
+          echo "Service: $ECS_SERVICE"
+          echo "Region:  $AWS_REGION"
+
           PREV_TASK_DEF_ARN=$(aws ecs describe-services \
             --cluster "$ECS_CLUSTER" \
             --services "$ECS_SERVICE" \
@@ -57,8 +62,14 @@ jobs:
             --output text \
             --region "$AWS_REGION")
 
+          if [ -z "$PREV_TASK_DEF_ARN" ] || [ "$PREV_TASK_DEF_ARN" = "None" ]; then
+            echo "ERROR: Could not determine previous task definition ARN (got: '$PREV_TASK_DEF_ARN')."
+            echo "Check ECS_CLUSTER/ECS_SERVICE/AWS_REGION and IAM permission ecs:DescribeServices."
+            exit 1
+          fi
+
           echo "Previous task definition ARN: $PREV_TASK_DEF_ARN"
-          echo "prev_task_def_arn=$PREV_TASK_DEF_ARN" >> $GITHUB_OUTPUT
+          echo "prev_task_def_arn=$PREV_TASK_DEF_ARN" >> "$GITHUB_OUTPUT"
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -100,7 +111,6 @@ jobs:
           name: trivy-scan-results
           path: trivy-results.sarif
 
-      # IMPORTANT: no "|| true" — tests must be able to fail the job
       - name: Run tests
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -142,16 +152,18 @@ jobs:
       - name: Get ALB DNS name
         id: get-alb
         run: |
+          set -euo pipefail
           ALB_DNS=$(aws elbv2 describe-load-balancers \
             --names dev-task-manager-alb \
             --region "$AWS_REGION" \
             --query 'LoadBalancers[0].DNSName' \
             --output text)
-          echo "alb_dns=$ALB_DNS" >> $GITHUB_OUTPUT
+          echo "alb_dns=$ALB_DNS" >> "$GITHUB_OUTPUT"
           echo "ALB DNS: $ALB_DNS"
 
       - name: Validate health endpoint
         run: |
+          set -euo pipefail
           echo "Validating deployment..."
           max_attempts=10
           attempt=0
@@ -207,7 +219,6 @@ jobs:
           echo "Timestamp: $(date)"
           echo "================================"
 
-      # Inside the same job, use failure() / success(). Don't use needs.* here.
       - name: Deployment Failed Notification
         if: failure()
         run: |
@@ -240,7 +251,6 @@ jobs:
     name: Rollback on Failure
     runs-on: ubuntu-latest
     needs: build-and-deploy
-
     if: ${{ always() && needs.build-and-deploy.result == 'failure' }}
 
     steps:
@@ -251,9 +261,21 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      # REAL rollback: set service back to the previous task definition
+      # FIXED: refuse to rollback if the ARN is empty (prevents InvalidParameterException)
+      - name: Validate rollback input
+        run: |
+          set -euo pipefail
+          PREV_TASK_DEF_ARN="${{ needs.build-and-deploy.outputs.prev_task_def_arn }}"
+          if [ -z "$PREV_TASK_DEF_ARN" ] || [ "$PREV_TASK_DEF_ARN" = "None" ]; then
+            echo "ERROR: prev_task_def_arn is empty. Rollback cannot proceed."
+            echo "This means the capture step didn't produce an ARN."
+            exit 1
+          fi
+          echo "Will rollback to: $PREV_TASK_DEF_ARN"
+
       - name: Rollback deployment to previous task definition
         run: |
+          set -euo pipefail
           echo "Deployment failed! Rolling back..."
 
           PREV_TASK_DEF_ARN="${{ needs.build-and-deploy.outputs.prev_task_def_arn }}"
@@ -270,6 +292,7 @@ jobs:
 
       - name: Wait for rollback to stabilize
         run: |
+          set -euo pipefail
           echo "Waiting for rollback to stabilize..."
           aws ecs wait services-stable \
             --cluster "$ECS_CLUSTER" \
