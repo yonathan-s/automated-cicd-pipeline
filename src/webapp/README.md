@@ -42,6 +42,7 @@ GET /api/tasks
 ```
 Returns all tasks.
 
+
 **Response:**
 ```json
 {
@@ -54,7 +55,7 @@ Returns all tasks.
 ```
 GET /api/tasks/{task_id}
 ```
-Returns a specific task by ID.
+Gets a specific task by ID and returns it
 
 **Response:**
 ```json
