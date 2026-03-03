@@ -184,7 +184,7 @@ jobs:
           echo "Application URL: http://${{ steps.get-alb.outputs.alb_dns }}"
           echo "================================"
       
-          
+
       - name: Record deployment metrics
         if: always()
         run: |
@@ -203,6 +203,34 @@ jobs:
           echo "Author: ${{ github.actor }}"
           echo "Timestamp: $(date)"
           echo "================================"
+      - name: Deployment Failed Notification
+        if: failure()
+        run: |
+          echo "=========================================="
+          echo "DEPLOYMENT FAILED"
+          echo "=========================================="
+          echo "Commit: ${{ github.sha }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Author: ${{ github.actor }}"
+          echo "Time: $(date)"
+          echo ""
+          echo "Check the logs above for details."
+          echo "Rollback job will attempt to restore service."
+          echo "=========================================="
+      
+      - name: Deployment Success Notification
+        if: success()
+        run: |
+          echo "=========================================="
+          echo "DEPLOYMENT SUCCESSFUL"
+          echo "=========================================="
+          echo "Commit: ${{ github.sha }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Author: ${{ github.actor }}"
+          echo "Application: http://${{ steps.get-alb.outputs.alb_dns }}"
+          echo "Time: $(date)"
+          echo "Duration: Check 'Record deployment metrics' step"
+          echo "=========================================="
 
   rollback:
     name: Rollback on Failure
