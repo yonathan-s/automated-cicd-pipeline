@@ -68,7 +68,7 @@ jobs:
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'  
 
-      # STEP 6: Save security scan results
+      # Save security scan results
       - name: Save scan results
         if: always()
         uses: aquasecurity/trivy-action@master
@@ -77,11 +77,13 @@ jobs:
           format: 'sarif'
           output: 'trivy-results.sarif'
       
-      - name: Upload scan results to GitHub Security
+      # Upload scan results as workflow artifact (viewable in Actions)
+      - name: Upload scan results as artifact
         if: always()
-        uses: github/codeql-action/upload-sarif@v3
+        uses: actions/upload-artifact@v4
         with:
-          sarif_file: 'trivy-results.sarif'
+          name: trivy-scan-results
+          path: trivy-results.sarif
 
       # Run tests
       - name: Run tests
@@ -125,3 +127,53 @@ jobs:
             --services $ECS_SERVICE \
             --region $AWS_REGION
           echo "Deployment complete!"
+    
+      # Validate deployment
+      - name: Get ALB DNS name
+        id: get-alb
+        run: |
+          ALB_DNS=$(aws elbv2 describe-load-balancers \
+            --names dev-task-manager-alb \
+            --region $AWS_REGION \
+            --query 'LoadBalancers[0].DNSName' \
+            --output text)
+          echo "alb_dns=$ALB_DNS" >> $GITHUB_OUTPUT
+          echo "ALB DNS: $ALB_DNS"
+      
+      - name: Validate health endpoint
+        run: |
+          echo "Validating deployment..."
+          max_attempts=10
+          attempt=0
+          
+          while [ $attempt -lt $max_attempts ]; do
+            echo "Attempt $((attempt + 1))/$max_attempts"
+            
+            response=$(curl -s -o /dev/null -w "%{http_code}" http://${{ steps.get-alb.outputs.alb_dns }}/health || echo "000")
+            
+            if [ "$response" = "200" ]; then
+              echo "✓ Health check passed!"
+              exit 0
+            fi
+            
+            echo "Health check returned: $response"
+            echo "Waiting 30 seconds before retry..."
+            sleep 30
+            attempt=$((attempt + 1))
+          done
+          
+          echo "✗ Health check failed after $max_attempts attempts"
+          exit 1
+      
+      - name: Deployment Summary
+        if: always()
+        run: |
+          echo "================================"
+          echo "DEPLOYMENT SUMMARY"
+          echo "================================"
+          echo "Commit: ${{ github.sha }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Triggered by: ${{ github.actor }}"
+          echo "Status: ${{ job.status }}"
+          echo "Application URL: http://${{ steps.get-alb.outputs.alb_dns }}"
+          echo "================================"
