@@ -241,8 +241,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-and-deploy
 
-    # Correct condition for a dependent job:
-    if: needs.build-and-deploy.result == 'failure'
+    if: ${{ always() && needs.build-and-deploy.result == 'failure' }}
 
     steps:
       - name: Configure AWS credentials
