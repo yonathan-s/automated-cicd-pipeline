@@ -1,6 +1,6 @@
 """
 Task Manager API - Flask Application
-A simple REST API for managing tasks with improved error handling and logging
+A simple REST API for managing tasks with improved logging and error handling
 """
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
