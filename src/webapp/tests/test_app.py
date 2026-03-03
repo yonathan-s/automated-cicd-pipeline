@@ -26,7 +26,7 @@ def test_health_check(client):
     assert response.status_code == 200
     
     data = response.get_json()
-    assert data['status'] == 'WRONG' # Delibarately wrong to test failure case
+    assert data['status'] == 'healthy'
     assert 'timestamp' in data
     assert data['service'] == 'task-manager-api'
 
