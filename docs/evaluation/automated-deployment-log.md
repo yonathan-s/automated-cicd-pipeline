@@ -4,36 +4,44 @@
 
 ## Deployment History
 
-| Date | Commit | Duration | Status | Triggered By | Notes |
-|------|--------|----------|--------|--------------|-------|
-|03/03/2026| [SHA] | Xm Ys | Success | Yonathan | Initial CI/CD deployment |
+| # | Deployment Name                              | Commit     | Status  | Duration | Tests         | Rollback Triggered        |
+| - | -------------------------------------------- | ---------- | ------- | -------- | ------------- | ------------------------- |
+| 1 | Test Deployment 1 – Initial Pipeline Run     | `2b5737e4` | Success | 4m 15s   | Passed        | No                        |
+| 2 | Test Deployment 2 – Intentional Test Failure | `5f6c1a9b` | Failed  | 1m 19s   | Failed (1/10) | No (Deploy Not Attempted) |
+| 3 | Test Deployment 3 – Fix Test and Redeploy    | `08d985d`  | Success | 4m 37s   | Passed        | No                        |
+| 4 | Test Deployment 4 – Stable Deployment        | `1fa62a3e` | Success | 4m 19s   | Passed        | No                        |
+| 5 | Test Deployment 5 – Optimised Deployment     | `0d0c5289` | Success | 4m 06s   | Passed        | No                        |
 
-[Update this table after each deployment]
+
+
+[Table updated after each deployment]
 
 ## Average Metrics
 
-**After 5 deployments:**
+**After 5 deployments**
 
-| Metric | Value |
-|--------|-------|
-| Average deployment time | [To calculate] |
-| Success rate | [X/5] |
-| Fastest deployment | [X minutes] |
-| Slowest deployment | [X minutes] |
-| Average time to detection (if failure) | [X minutes] |
-| Average recovery time (if failure) | [X minutes] |
+| Metric                                 | Value                     |
+| -------------------------------------- | ------------------------- |
+| Average deployment time                | 4m 19s                    |
+| Success rate                           | 4/5 (80%)                 |
+| Fastest deployment                     | 4m 06s                    |
+| Slowest deployment                     | 4m 37s                    |
+| Average time to detection (if failure) | 1m 19s                    |
+| Average recovery time (if failure)     | 3m                        |
+
 
 ## Comparison to Manual Deployment
 
-| Metric | Manual (Week 4) | Automated (Week 6) | Improvement |
-|--------|----------------|-------------------|-------------|
-| Deployment time | 12 hours | ~8 minutes | 98.9% faster |
-| Steps required | 20 manual steps | 0 (automatic) | 100% reduction |
-| Human intervention | Constant | None | 100% elimination |
-| Error rate | 15 errors | 0 errors | 100% elimination |
-| Security scanning | Manual, 1 time | Automatic, every deployment | ∞ increase |
-| Rollback time | 45 minutes | 5 minutes | 89% faster |
-| Repeatability | Variable | Perfect | 100% consistent |
+| Metric             | Manual             | Automated                       | Improvement                          |
+| ------------------ | ------------------ | ------------------------------- | ------------------------------------ |
+| Deployment time    | 12 hours (720 min) | 3m 43s (avg)                    | **99.48% faster**                    |
+| Steps required     | 20 manual steps    | 0 (automatic)                   | 100% reduction                       |
+| Human intervention | Constant           | None                            | 100% elimination                     |
+| Error rate         | 15 errors          | 1 failure (detected pre-deploy) | 93.3% reduction in production errors |
+| Security scanning  | Manual, 1 time     | Automatic, every deployment     | Continuous enforcement               |
+| Rollback time      | 45 minutes         | < 5 minutes (automated)         | ~89% faster                          |
+| Repeatability      | Variable           | Fully deterministic             | 100% consistent                      |
+
 
 ## Deployment Process Automation
 
