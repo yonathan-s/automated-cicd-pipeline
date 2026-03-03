@@ -20,12 +20,15 @@ env:
   ECS_SERVICE: dev-task-manager-service
   CONTAINER_NAME: task-manager-container
 
-
 jobs:
   build-and-deploy:
     name: Build and Deploy
     runs-on: ubuntu-latest
-    
+
+    # Expose the current (pre-deploy) task definition so the rollback job can use it
+    outputs:
+      prev_task_def_arn: ${{ steps.capture-prev-taskdef.outputs.prev_task_def_arn }}
+
     steps:
       - name: Record start time
         id: start-time
@@ -33,24 +36,34 @@ jobs:
           echo "start_time=$(date +%s)" >> $GITHUB_OUTPUT
           echo "Deployment started at: $(date)"
 
-      # Checkout code from repository
       - name: Checkout code
         uses: actions/checkout@v4
-      
-      # Configure AWS credentials
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
-      
-      # Login to Amazon ECR
+
+      # Capture the task definition BEFORE we deploy, so rollback can restore it
+      - name: Capture current ECS task definition (pre-deploy)
+        id: capture-prev-taskdef
+        run: |
+          PREV_TASK_DEF_ARN=$(aws ecs describe-services \
+            --cluster "$ECS_CLUSTER" \
+            --services "$ECS_SERVICE" \
+            --query 'services[0].taskDefinition' \
+            --output text \
+            --region "$AWS_REGION")
+
+          echo "Previous task definition ARN: $PREV_TASK_DEF_ARN"
+          echo "prev_task_def_arn=$PREV_TASK_DEF_ARN" >> $GITHUB_OUTPUT
+
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
-      
-      # Build Docker image
+
       - name: Build Docker image
         working-directory: ./src/webapp
         env:
@@ -58,23 +71,20 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         run: |
           echo "Building Docker image..."
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker build -t "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" .
+          docker tag "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" "$ECR_REGISTRY/$ECR_REPOSITORY:latest"
           echo "Docker image built successfully"
-      
 
-      # Scan image for vulnerabilities
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
           format: 'table'
-          exit-code: '0'  # Don't fail build on vulnerabilities (for now)
+          exit-code: '0'
           ignore-unfixed: true
           vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'  
+          severity: 'CRITICAL,HIGH'
 
-      # Save security scan results
       - name: Save scan results
         if: always()
         uses: aquasecurity/trivy-action@master
@@ -82,8 +92,7 @@ jobs:
           image-ref: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
           format: 'sarif'
           output: 'trivy-results.sarif'
-      
-      # Upload scan results as workflow artifact (viewable in Actions)
+
       - name: Upload scan results as artifact
         if: always()
         uses: actions/upload-artifact@v4
@@ -91,86 +100,81 @@ jobs:
           name: trivy-scan-results
           path: trivy-results.sarif
 
-      # Run tests
+      # IMPORTANT: no "|| true" — tests must be able to fail the job
       - name: Run tests
-        working-directory: ./src/webapp
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
           echo "Running tests in Docker container..."
-          docker run --rm $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG python -m pytest tests/ -v || true
+          docker run --rm "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" python -m pytest tests/ -v
           echo "Tests completed"
-      
-      # Push image to ECR
+
       - name: Push image to Amazon ECR
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
           echo "Pushing image to ECR..."
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:latest"
           echo "Image pushed successfully"
-      
-      # Update ECS service
+
       - name: Deploy to ECS
         run: |
           echo "Updating ECS service..."
           aws ecs update-service \
-            --cluster $ECS_CLUSTER \
-            --service $ECS_SERVICE \
+            --cluster "$ECS_CLUSTER" \
+            --service "$ECS_SERVICE" \
             --force-new-deployment \
-            --region $AWS_REGION
+            --region "$AWS_REGION"
           echo "ECS service update initiated"
-      
-      # Wait for deployment to complete
+
       - name: Wait for deployment
         run: |
           echo "Waiting for ECS service to stabilize..."
           aws ecs wait services-stable \
-            --cluster $ECS_CLUSTER \
-            --services $ECS_SERVICE \
-            --region $AWS_REGION
+            --cluster "$ECS_CLUSTER" \
+            --services "$ECS_SERVICE" \
+            --region "$AWS_REGION"
           echo "Deployment complete!"
-    
-      # Validate deployment
+
       - name: Get ALB DNS name
         id: get-alb
         run: |
           ALB_DNS=$(aws elbv2 describe-load-balancers \
             --names dev-task-manager-alb \
-            --region $AWS_REGION \
+            --region "$AWS_REGION" \
             --query 'LoadBalancers[0].DNSName' \
             --output text)
           echo "alb_dns=$ALB_DNS" >> $GITHUB_OUTPUT
           echo "ALB DNS: $ALB_DNS"
-      
+
       - name: Validate health endpoint
         run: |
           echo "Validating deployment..."
           max_attempts=10
           attempt=0
-          
+
           while [ $attempt -lt $max_attempts ]; do
             echo "Attempt $((attempt + 1))/$max_attempts"
-            
-            response=$(curl -s -o /dev/null -w "%{http_code}" http://${{ steps.get-alb.outputs.alb_dns }}/health || echo "000")
-            
+
+            response=$(curl -s -o /dev/null -w "%{http_code}" "http://${{ steps.get-alb.outputs.alb_dns }}/health" || echo "000")
+
             if [ "$response" = "200" ]; then
               echo "✓ Health check passed!"
               exit 0
             fi
-            
+
             echo "Health check returned: $response"
             echo "Waiting 30 seconds before retry..."
             sleep 30
             attempt=$((attempt + 1))
           done
-          
+
           echo "✗ Health check failed after $max_attempts attempts"
           exit 1
-      
+
       - name: Deployment Summary
         if: always()
         run: |
@@ -183,7 +187,6 @@ jobs:
           echo "Status: ${{ job.status }}"
           echo "Application URL: http://${{ steps.get-alb.outputs.alb_dns }}"
           echo "================================"
-      
 
       - name: Record deployment metrics
         if: always()
@@ -193,7 +196,7 @@ jobs:
           DURATION=$((END_TIME - START_TIME))
           MINUTES=$((DURATION / 60))
           SECONDS=$((DURATION % 60))
-          
+
           echo "================================"
           echo "DEPLOYMENT METRICS"
           echo "================================"
@@ -203,6 +206,8 @@ jobs:
           echo "Author: ${{ github.actor }}"
           echo "Timestamp: $(date)"
           echo "================================"
+
+      # Inside the same job, use failure() / success(). Don't use needs.* here.
       - name: Deployment Failed Notification
         if: failure()
         run: |
@@ -217,7 +222,7 @@ jobs:
           echo "Check the logs above for details."
           echo "Rollback job will attempt to restore service."
           echo "=========================================="
-      
+
       - name: Deployment Success Notification
         if: success()
         run: |
@@ -229,15 +234,16 @@ jobs:
           echo "Author: ${{ github.actor }}"
           echo "Application: http://${{ steps.get-alb.outputs.alb_dns }}"
           echo "Time: $(date)"
-          echo "Duration: Check 'Record deployment metrics' step"
           echo "=========================================="
 
   rollback:
     name: Rollback on Failure
     runs-on: ubuntu-latest
     needs: build-and-deploy
-    if: failure()
-    
+
+    # Correct condition for a dependent job:
+    if: needs.build-and-deploy.result == 'failure'
+
     steps:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -245,32 +251,38 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
-      
-      - name: Rollback deployment
+
+      # REAL rollback: set service back to the previous task definition
+      - name: Rollback deployment to previous task definition
         run: |
           echo "Deployment failed! Rolling back..."
-          
-          # Get the previous task definition
-          CURRENT_TASK_DEF=$(aws ecs describe-services \
-            --cluster ${{ env.ECS_CLUSTER }} \
-            --services ${{ env.ECS_SERVICE }} \
-            --query 'services[0].taskDefinition' \
-            --output text)
-          
-          echo "Current task definition: $CURRENT_TASK_DEF"
-          
-          # Force a new deployment (ECS will use the last stable version)
+
+          PREV_TASK_DEF_ARN="${{ needs.build-and-deploy.outputs.prev_task_def_arn }}"
+          echo "Rolling back to previous task definition ARN: $PREV_TASK_DEF_ARN"
+
           aws ecs update-service \
-            --cluster ${{ env.ECS_CLUSTER }} \
-            --service ${{ env.ECS_SERVICE }} \
-            --force-new-deployment
-          
+            --cluster "$ECS_CLUSTER" \
+            --service "$ECS_SERVICE" \
+            --task-definition "$PREV_TASK_DEF_ARN" \
+            --force-new-deployment \
+            --region "$AWS_REGION"
+
           echo "Rollback initiated"
-      
+
+      - name: Wait for rollback to stabilize
+        run: |
+          echo "Waiting for rollback to stabilize..."
+          aws ecs wait services-stable \
+            --cluster "$ECS_CLUSTER" \
+            --services "$ECS_SERVICE" \
+            --region "$AWS_REGION"
+          echo "Rollback complete!"
+
       - name: Notify rollback
         run: |
+          echo "=========================================="
           echo "DEPLOYMENT FAILED AND ROLLED BACK"
-          echo "Check the logs above for details"
-          echo "Previous stable version has been restored"            
-
-            
+          echo "=========================================="
+          echo "Restored task definition: ${{ needs.build-and-deploy.outputs.prev_task_def_arn }}"
+          echo "Check the build-and-deploy logs for the failure cause."
+          echo "=========================================="
