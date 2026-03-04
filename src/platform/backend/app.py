@@ -11,6 +11,11 @@ import os
 from models import db, Deployment, DeploymentError, DeploymentMetric
 from database import init_db, seed_initial_data, get_deployment_statistics
 
+from simulator import simulate_manual_deployment, simulate_multiple_deployments, get_simulation_summary
+
+
+from statistics import perform_full_analysis, calculate_descriptive_stats
+
 # Create Flask app
 app = Flask(__name__)
 CORS(app)
@@ -190,6 +195,56 @@ def get_summary():
         'overall_success_rate': success_rate,
         'latest_deployment': latest.to_dict() if latest else None
     })
+
+@app.route('/api/analysis/full', methods=['GET'])
+def get_full_analysis():
+    """Get complete statistical analysis"""
+    
+    analysis = perform_full_analysis()
+    return jsonify(analysis)
+
+
+# SIMULATOR ENDPOINTS
+
+
+@app.route('/api/simulate/manual', methods=['POST'])
+def simulate_single_manual():
+    """Simulate a single manual deployment"""
+    
+    deployment = simulate_manual_deployment()
+    
+    return jsonify({
+        'message': 'Manual deployment simulated',
+        'deployment': deployment.to_dict()
+    }), 201
+
+
+@app.route('/api/simulate/manual/batch', methods=['POST'])
+def simulate_batch_manual():
+    """Simulate multiple manual deployments"""
+    
+    data = request.json or {}
+    count = data.get('count', 10)
+    spread_days = data.get('spread_days', 30)
+    
+    deployments = simulate_multiple_deployments(count=count, spread_days=spread_days)
+    
+    return jsonify({
+        'message': f'Simulated {count} manual deployments',
+        'count': len(deployments),
+        'deployments': [d.to_dict() for d in deployments]
+    }), 201
+
+
+@app.route('/api/simulate/summary', methods=['GET'])
+def get_sim_summary():
+    """Get summary of simulated deployments"""
+    
+    summary = get_simulation_summary()
+    return jsonify(summary)
+
+
+
 
 
 if __name__ == '__main__':
