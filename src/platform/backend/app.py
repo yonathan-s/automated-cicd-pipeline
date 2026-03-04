@@ -16,6 +16,8 @@ from simulator import simulate_manual_deployment, simulate_multiple_deployments,
 
 from statistics import perform_full_analysis, calculate_descriptive_stats
 
+from metrics_queue import process_queued_deployments
+
 # Create Flask app
 app = Flask(__name__)
 CORS(app)
@@ -202,6 +204,12 @@ def get_full_analysis():
     
     analysis = perform_full_analysis()
     return jsonify(analysis)
+
+@app.route('/api/queue/process', methods=['POST'])
+def process_queue():
+    """Process queued deployment metrics"""
+    result = process_queued_deployments()
+    return jsonify(result)
 
 
 # SIMULATOR ENDPOINTS
