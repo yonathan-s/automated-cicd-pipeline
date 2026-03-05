@@ -191,7 +191,7 @@ def interpret_cohens_d(d):
 
 
 def get_t_test_interpretation(significant, cohens_d):
-    """Get human-readable interpretation of t-test results"""
+    """Get readable interpretation of t-test results"""
     if significant:
         effect_size = interpret_cohens_d(cohens_d)
         return f"The difference in deployment times is statistically significant (p < 0.05) with a {effect_size} effect size. Automated deployments are significantly faster than manual deployments."
@@ -200,7 +200,7 @@ def get_t_test_interpretation(significant, cohens_d):
 
 
 def get_chi_square_interpretation(significant):
-    """Get human-readable interpretation of chi-square test results"""
+    """Get readable interpretation of chi-square test results"""
     if significant:
         return "The difference in success rates is statistically significant (p < 0.05). Automated deployments have a significantly different success rate compared to manual deployments."
     else:

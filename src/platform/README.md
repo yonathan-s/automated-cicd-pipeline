@@ -18,7 +18,7 @@ cd src/platform
 .\start-platform.ps1
 ```
 
-Platform runs on: http://localhost:5000
+Platform runs on: http://localhost:5001
 
 ### API Endpoints
 
@@ -66,19 +66,19 @@ Metrics include:
 ### Simulate Manual Deployments
 ```bash
 # Simulate 10 manual deployments
-curl -X POST http://localhost:5000/api/simulate/manual/batch \
+curl -X POST http://localhost:5001/api/simulate/manual/batch \
   -H "Content-Type: application/json" \
   -d '{"count": 10, "spread_days": 30}'
 ```
 
 ### Get Statistical Analysis
 ```bash
-curl http://localhost:5000/api/analysis/full
+curl http://localhost:5001/api/analysis/full
 ```
 
 ### View Latest Deployments
 ```bash
-curl http://localhost:5000/api/deployments?limit=5
+curl http://localhost:5001/api/deployments?limit=5
 ```
 
 ## Database
