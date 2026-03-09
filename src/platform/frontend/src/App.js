@@ -1,18 +1,13 @@
-/**
- * Main App Component
- * Root component that manages view switching and layout
- */
-
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import Header from './components/Layout/Header';
+import Dashboard from './components/Dashboard/Dashboard';  
 import { healthCheck } from './services/api';
 
 function App() {
   const [currentView, setCurrentView] = useState('dashboard');
   const [apiStatus, setApiStatus] = useState('checking');
 
-  // Check API health on mount
   useEffect(() => {
     const checkAPI = async () => {
       try {
@@ -24,7 +19,6 @@ function App() {
     };
 
     checkAPI();
-    // Check every 30 seconds
     const interval = setInterval(checkAPI, 30000);
     return () => clearInterval(interval);
   }, []);
@@ -35,7 +29,6 @@ function App() {
       
       <main className="main-content">
         <div className="container">
-          {/* API Status Indicator */}
           <div className={`api-status ${apiStatus}`}>
             <span className="status-dot"></span>
             {apiStatus === 'checking' && 'Checking API connection...'}
@@ -45,15 +38,7 @@ function App() {
 
           {/* View Content */}
           <div className="view-content">
-            {currentView === 'dashboard' && (
-              <div className="view-placeholder">
-                <h2>📊 Dashboard View</h2>
-                <p>Dashboard components coming in Day 5</p>
-                <p className="placeholder-note">
-                  This will show: deployment history, recent deployments, quick stats
-                </p>
-              </div>
-            )}
+            {currentView === 'dashboard' && <Dashboard />}
 
             {currentView === 'statistics' && (
               <div className="view-placeholder">

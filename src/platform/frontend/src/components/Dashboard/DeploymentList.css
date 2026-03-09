@@ -1,0 +1,148 @@
+.deployment-list {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.deployment-list-title {
+  font-size: 1.25rem;
+  color: #1f2937;
+  margin: 0 0 1rem 0;
+  font-weight: 600;
+}
+
+.no-deployments {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: #6b7280;
+}
+
+.no-deployments p {
+  margin: 0.5rem 0;
+}
+
+.help-text {
+  font-size: 0.875rem;
+  color: #9ca3af;
+}
+
+.deployment-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.deployment-item {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s;
+}
+
+.deployment-item:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.deployment-item.deployment-success {
+  background: #f0fdf4;
+  border-left: 3px solid #10b981;
+}
+
+.deployment-item.deployment-failed {
+  background: #fef2f2;
+  border-left: 3px solid #ef4444;
+}
+
+.deployment-status {
+  flex-shrink: 0;
+}
+
+.status-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.status-icon.status-success {
+  background: #10b981;
+  color: white;
+}
+
+.status-icon.status-failed {
+  background: #ef4444;
+  color: white;
+}
+
+.deployment-info {
+  flex: 1;
+}
+
+.deployment-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.deployment-type {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badge-manual {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.badge-automated {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.deployment-commit {
+  font-family: monospace;
+  font-size: 0.875rem;
+  background: #f3f4f6;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  color: #6b7280;
+}
+
+.deployment-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.deployment-duration {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.deployment-errors {
+  margin-top: 0.5rem;
+}
+
+.error-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
