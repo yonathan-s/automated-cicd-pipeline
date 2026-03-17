@@ -119,15 +119,15 @@ jobs:
           path: trivy-results.sarif
 
       # Tests MUST fail the job if they fail
-      #- name: Run tests
-      #  env:
-      #    ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-      #    IMAGE_TAG: ${{ github.sha }}
-        #run: |
-      #    set -euo pipefail
-      #    echo "Running tests in Docker container..."
-      #    docker run --rm "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" python -m pytest tests/ -v
-      #    echo "Tests completed"
+      - name: Run tests
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          echo "Running tests in Docker container..."
+          docker run --rm "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" python -m pytest tests/ -v
+          echo "Tests completed"
 
       - name: Push image to Amazon ECR
         env:
