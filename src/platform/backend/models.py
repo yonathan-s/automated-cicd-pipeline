@@ -21,7 +21,7 @@ class Deployment(db.Model):
     triggered_by = db.Column(db.String(100))
     
     # Test and security info
-    tests_passed = db.Column(db.Boolean, default=True)
+    tests_passed = db.Column(db.Integer, default=0)
     tests_total = db.Column(db.Integer, default=0)
     tests_failed = db.Column(db.Integer, default=0)
     security_scan_passed = db.Column(db.Boolean, default=True)

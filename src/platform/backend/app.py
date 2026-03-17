@@ -7,6 +7,8 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from datetime import datetime
 import os
+import numpy as np
+from flask.json.provider import DefaultJSONProvider
 
 from models import db, Deployment, DeploymentError, DeploymentMetric
 from database import init_db, seed_initial_data, get_deployment_statistics
@@ -18,9 +20,24 @@ from statistics import perform_full_analysis, calculate_descriptive_stats
 
 from metrics_queue import process_queued_deployments
 
+class NumpyJSONProvider(DefaultJSONProvider):
+    """Custom JSON provider to handle NumPy types"""
+    def default(self, o):
+        if isinstance(o, np.integer):
+            return int(o)
+        if isinstance(o, np.floating):
+            return float(o)
+        if isinstance(o, np.bool_):  
+            return bool(o)           
+        if isinstance(o, np.ndarray):
+            return o.tolist()
+        return super().default(o)
+
 # Create Flask app
 app = Flask(__name__)
+app.json = NumpyJSONProvider(app)
 CORS(app)
+
 
 # Configuration
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///deployments.db'
