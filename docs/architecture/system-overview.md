@@ -24,9 +24,9 @@ Manual Push to ECR → Manual ECS Update → Manual Verification → Production
 
 ### Automated CI/CD Flow
 ```
-Developer → Git Push → GitHub Actions Trigger → 
-Build → Test → Security Scan → Push to ECR → Deploy to ECS → 
-CloudWatch Monitoring → Production
+Developer -> Git Push -> GitHub Actions Trigger -> 
+Build -> Test -> Security Scan -> Push to ECR -> Deploy to ECS -> 
+CloudWatch Monitoring -> Production
 ```
 
 **Steps:**

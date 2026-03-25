@@ -1,173 +1,142 @@
-# Automated CI/CD Deployment Pipeline
+# Automated CI/CD Pipeline for Containerised Web Applications
 
-An automated CI/CD pipeline for deploying containerised Flask web applications to AWS using infrastructure as code.
+This project implements and evaluates an automated CI/CD deployment pipeline for containerised web applications on AWS. It also includes a custom deployment metrics platform used to analyse deployment performance and compare automated deployment against a manual deployment baseline.
 
-## Project Overview
+## Project Outputs
 
-This project demonstrates a complete DevOps workflow including:
-- Containerised Python/Flask web application
-- Infrastructure as Code using Terraform
-- Automated CI/CD pipeline with GitHub Actions
-- Container security scanning
-- AWS deployment (ECS Fargate)
-- Monitoring and logging with CloudWatch
-- Comparative evaluation: Manual vs Automated deployment
+This project contains three main outputs:
+
+1. **Demo web application**  
+   A Flask task manager application used as a controlled deployment target.
+
+2. **Automated CI/CD deployment pipeline**  
+   A GitHub Actions + Docker + Terraform + AWS deployment workflow.
+
+3. **Deployment metrics platform**  
+   A Flask + React platform for collecting, visualising, and statistically analysing deployment metrics.
 
 ## Technology Stack
 
-- **Application:** Python 3.11 + Flask
-- **Containerization:** Docker
-- **Container Registry:** AWS ECR
-- **Cloud Provider:** AWS (ECS, VPC, IAM, CloudWatch)
-- **IaC:** Terraform
-- **CI/CD:** GitHub Actions
-- **Security:** Trivy, Dependabot
-- **Monitoring:** AWS CloudWatch
+### Languages
+- Python
+- JavaScript
+- HTML
+- CSS
+- YAML
+- Terraform HCL
+
+### Application and Platform
+- Flask
+- Flask-CORS
+- Flask-SQLAlchemy
+- React
+- Axios
+- Chart.js
+- NumPy
+- SciPy
+
+### DevOps / Infrastructure
+- Docker
+- GitHub Actions
+- Terraform
+- AWS ECS
+- AWS Fargate
+- AWS ECR
+- AWS Application Load Balancer
+- AWS VPC
+- AWS IAM
+- AWS CloudWatch
 
 ## Project Structure
-```
-automated-cicd-pipeline/
-├── .github/workflows/       # GitHub Actions CI/CD workflows
-├── docs/                    # Project documentation
-│   ├── architecture/        # Architecture diagrams
-│   ├── evaluation/          # Evaluation metrics and data
-│   └── planning/            # Project planning documents
-├── infrastructure/          # Terraform configurations
-│   └── terraform/
-│       ├── modules/         # Reusable Terraform modules
-│       └── environments/    # Environment-specific configs
-├── src/webapp/              # Flask application source code
-├── tests/                   # Automated tests
-│   ├── unit/               # Unit tests
-│   └── integration/        # Integration tests
-└── scripts/                 # Utility scripts
+
+```text
+.
+├── .github/workflows/              # GitHub Actions workflows
+├── docs/                           # Supporting documentation and screenshots of manual deployment and build stage
+├── infrastructure/terraform/       # Terraform IaC
+├── src/webapp/                     # Demo deployable web application
+├── src/platform/backend/           # Metrics platform backend API
+├── src/platform/frontend/          # Metrics platform frontend UI
+├── src/platform/start-platform.ps1 # Backend startup helper
+└── SUBMISSION_GUIDE.md             # Marker-friendly run guide
+
 ```
 
-## Getting Started
+## What Each Component Does
 
-### Prerequisites
+### src/webapp
+This is the deployable demo application. It is the application built into a Docker image and deployed to AWS.
 
-- Python 3.11+
-- Docker Desktop
-- AWS CLI configured
-- Terraform
-- Git
+### infrastructure/terraform
+This defines the AWS infrastructure used for deployment:
 
-### Local Development
-```bash
-# Clone repository
-git clone https://github.com/yonathan-s/automated-cicd-pipeline.git
-cd automated-cicd-pipeline
+VPC
+subnets
+internet gateway
+NAT gateway
+security groups
+load balancer
+ECS cluster/service
+ECR repository
 
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+### .github/workflows
+This contains the CI/CD workflow that:
 
-# Install dependencies (coming in Week 2)
-pip install -r src/webapp/requirements.txt
+builds the Docker image
+scans it
+runs tests
+pushes the image to ECR
+redeploys the ECS service
+sends deployment metrics to the metrics platform (This has not been implemented yet. For now all automated deployment metrics are manually inputted to the platform)
 
-# Run application locally (coming in Week 2)
-python src/webapp/app.py
-```
+### src/platform/backend
 
-## Deployment
+This is the backend API for the deployment metrics platform.
 
-(Deployment instructions will be added as the project develops)
+### src/platform/frontend
 
-## Evaluation
+This is the React dashboard for visualising deployment data and statistical analysis.
 
-This project includes a comparative evaluation measuring:
-1. Deployment time
-2. Failure rate
-3. Recovery time
-4. Security coverage
-5. Monitoring visibility
-6. Repeatability
+## Local Run Summary
 
+Detailed instructions are in SUBMISSION_GUIDE.md.
 
-## Development Progress
-
-### Week 1: Foundation (Complete)
-- Development environment configured
-- AWS account set up
-- GitHub repository initialized
-- Research and planning completed
-
-### Week 2: Flask Application (Complete)
-- Task Manager API built
-- 6 REST endpoints implemented
-- Web interface created
-- Unit tests written (11 tests, all passing)
-- Local testing successful
-
-### Week 3: Containerization (Complete)
-- Dockerfile created with multi-stage build
-- Docker Compose configuration
-- Container running locally
-- Optimized for production (160MB image)
-- Security: non-root user, health checks
-- Documentation complete
-
-###  Week 4: AWS Manual Deployment (Next)
-- Manual infrastructure setup
-- Baseline metrics collection
-
-## Quick Start
-## Running with Docker
-
-### Prerequisites
-- Docker Desktop installed
-
-### Quick Start with Docker
-```bash
-# Navigate to webapp directory
+### Demo web app
 cd src/webapp
-
-# Start with Docker Compose
-docker compose up -d
-
-# View logs
-docker compose logs -f
-
-# Access application
-# Browser: http://localhost:5000
-
-# Stop
-docker compose down
-```
-
-See [src/webapp/DOCKER.md](src/webapp/DOCKER.md) for detailed Docker documentation.
-
-
-### Run the Application
-```bash
-# Navigate to webapp directory
-cd src/webapp
-
-# Create virtual environment
 python -m venv venv
-
-# Activate virtual environment (Windows PowerShell)
-.\venv\Scripts\Activate.ps1
-
-# Install dependencies
 pip install -r requirements.txt
-
-# Run the application
 python app.py
-```
+### Platform backend
+cd src/platform/backend
+python -m venv venv
+pip install -r requirements.txt
+python app.py
+### Platform frontend
+cd src/platform/frontend
+npm install
+npm start
+### Terraform Notes
+Terraform commands are run from:
 
-Access at: http://localhost:5000
+cd infrastructure/terraform
 
-### Run Tests
-```bash
-# From project root with venv activated
-pytest tests/unit/test_app.py -v
-```
+Typical commands:
 
-## API Documentation
+terraform init
+terraform validate
+terraform plan
 
-See [src/webapp/README.md](src/webapp/README.md) for detailed API documentation.
+## Important Submission Notes
+The metrics platform frontend expects a backend API URL.
 
+The GitHub Actions workflow currently does not send deployment metrics to the platform. I have not yet made it so that all metrics are sent automatically. This is because I would need to deploy the metric platform to allow it to reach the deployment metrics, and I have decided to hold off on doing this until more core components of the project are finalised.
 
+Some cloud deployment features require AWS credentials and GitHub secrets, which are not included in the code submission.
 
+The code submission is intended to document and reproduce the implemented system as far as possible without exposing secrets.
+
+## Final Submission
+
+For marker guidance, use:
+
+SUBMISSION_GUIDE.md

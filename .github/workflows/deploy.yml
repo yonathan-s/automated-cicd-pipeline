@@ -18,7 +18,7 @@ env:
   ECS_CLUSTER: dev-task-manager-cluster
   ECS_SERVICE: dev-task-manager-service
   CONTAINER_NAME: task-manager-container
-  METRICS_PLATFORM_URL: http://localhost:5001
+  METRICS_PLATFORM_URL: ${{ secrets.METRICS_PLATFORM_URL }}
 
 jobs:
   build-and-deploy:

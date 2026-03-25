@@ -10,33 +10,27 @@ Git Push (main branch)
     
 GitHub Actions Triggered
     
-┌─────────────────────────┐
-│   BUILD STAGE           │
-│  - Checkout code        │
-│  - Configure AWS        │
-│  - Login to ECR         │
-│  - Build Docker image   │
-└──────────┬──────────────┘
+
+BUILD STAGE
+- Checkout code        
+- Configure AWS        
+- Login to ECR       
+- Build Docker image   
            
-┌─────────────────────────┐
-│   TEST STAGE            │
-│  - Run unit tests       │
-│  - Security scan        │
-└──────────┬──────────────┘
-           ↓
-┌─────────────────────────┐
-│   DEPLOY STAGE          │
-│  - Push image to ECR    │
-│  - Update ECS service   │
-│  - Wait for stability   │
-└──────────┬──────────────┘
-           ↓
-┌─────────────────────────┐
-│   VALIDATE STAGE        │
-│  - Health check         │
-│  - Deployment metrics   │
-└──────────┬──────────────┘
-           ↓
+TEST STAGE            
+    - Run unit tests
+    - Security scan
+
+DEPLOY STAGE          
+    - Push image to ECR    
+    - Update ECS service   
+    - Wait for stability   
+
+
+VALIDATE STAGE        
+    - Health check         
+    - Deployment metrics   
+    
     SUCCESS / ROLLBACK
 ```
 

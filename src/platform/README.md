@@ -4,11 +4,11 @@ An interactive platform for collecting, analyzing, and visualizing deployment me
 
 ## Features
 
-- 📊 Real-time deployment tracking
-- 📈 Statistical analysis (t-tests, chi-square, effect sizes)
-- 🔄 Manual deployment simulator
-- 📉 Comparative visualizations
-- 🔗 GitHub Actions integration
+- Real-time deployment tracking
+- Statistical analysis (t-tests, chi-square, effect sizes)
+- Manual deployment simulator
+- Comparative visualizations
+- GitHub Actions integration
 
 ## Quick Start
 

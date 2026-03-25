@@ -1,245 +1,99 @@
-# Task Manager API
+# Task Manager Demo Web Application
 
-A simple Flask REST API for managing tasks, built as a demonstration application for CI/CD pipeline deployment.
+This is the demonstration web application used as the deployment target for the automated CI/CD pipeline. It is a Flask-based task manager API with a simple browser interface.
+
+## Purpose in the Project
+
+This component was not the main research contribution of the project. Its role was to act as a controlled deployment target so that the CI/CD pipeline, AWS infrastructure, and deployment metrics platform could be tested and evaluated consistently.
 
 ## Features
 
--  Create, Read, Update, Delete (CRUD) operations for tasks
--  RESTful API design
--  Web interface for task management
--  Health check endpoint for monitoring
--  CORS enabled for cross-origin requests
--  In-memory storage (no database required)
+- Flask REST API
+- Browser-based task interface
+- Health check endpoint for deployment verification
+- In-memory task storage
+- CRUD operations for tasks
+- Simple task statistics endpoint
 
-## Technology Stack
+## Main Endpoints
 
-- **Framework:** Flask 3.0.2
-- **Language:** Python 3.11+
-- **CORS:** Flask-CORS
-- **Frontend:** Vanilla JavaScript + HTML/CSS
+### Browser interface
+- `GET /`
 
-## API Endpoints
+### Health check
+- `GET /health`
 
-### Health Check
-```
-GET /health
-```
-Returns the health status of the application.
+### Task API
+- `GET /api/tasks`
+- `GET /api/tasks/<task_id>`
+- `POST /api/tasks`
+- `PUT /api/tasks/<task_id>`
+- `DELETE /api/tasks/<task_id>`
 
-**Response:**
-```json
-{
-  "status": "healthy",
-  "timestamp": "2025-02-20T10:30:00",
-  "service": "task-manager-api",
-  "version": "1.0.0"
-}
-```
+### Statistics
+- `GET /api/stats`
 
-### Get All Tasks
-```
-GET /api/tasks
-```
-Returns all tasks.
+## Local Run Instructions
 
-
-**Response:**
-```json
-{
-  "tasks": [...],
-  "count": 5
-}
-```
-
-### Get Single Task
-```
-GET /api/tasks/{task_id}
-```
-Gets a specific task by ID and returns it
-
-**Response:**
-```json
-{
-  "id": "uuid-here",
-  "title": "Task title",
-  "description": "Task description",
-  "completed": false,
-  "created_at": "2025-02-20T10:30:00",
-  "updated_at": "2025-02-20T10:30:00"
-}
-```
-
-### Create Task
-```
-POST /api/tasks
-```
-Creates a new task.
-
-**Request Body:**
-```json
-{
-  "title": "Task title",
-  "description": "Optional description"
-}
-```
-
-**Response:** 201 Created with task object
-
-### Update Task
-```
-PUT /api/tasks/{task_id}
-```
-Updates an existing task.
-
-**Request Body:**
-```json
-{
-  "title": "Updated title",
-  "description": "Updated description",
-  "completed": true
-}
-```
-
-**Response:** 200 OK with updated task object
-
-### Delete Task
-```
-DELETE /api/tasks/{task_id}
-```
-Deletes a task.
-
-**Response:**
-```json
-{
-  "message": "Task deleted successfully",
-  "id": "task-id"
-}
-```
-
-## Local Development
-
-### Prerequisites
-
-- Python 3.11 or higher
-- pip (Python package manager)
-
-### Setup
-
-1. **Create virtual environment:**
+### 1. Open a terminal in this folder
 ```bash
-   python -m venv venv
-```
+cd src/webapp
 
-2. **Activate virtual environment:**
-   
-   **Windows (PowerShell):**
-```powershell
-   .\venv\Scripts\Activate.ps1
 ```
-   
-   **macOS/Linux:**
+### 2. Create a virtual environment
 ```bash
-   source venv/bin/activate
+python -m venv venv
+
 ```
 
-3. **Install dependencies:**
+### 3. Activate it
 ```bash
-   pip install -r requirements.txt
+# Windows PowerShell
+.\venv\Scripts\Activate.ps1
+# macOS/Linux
+source venv/bin/activate
 ```
 
-4. **Run the application:**
+### 4. Install dependencies
 ```bash
-   python app.py
+pip install -r requirements.txt
 ```
 
-5. **Access the application:**
-   - Web Interface: http://localhost:5000
-   - API: http://localhost:5000/api/tasks
-   - Health Check: http://localhost:5000/health
-
-### Development Mode
-
-The application runs in debug mode by default, which provides:
-- Auto-reload on code changes
-- Detailed error messages
-- Interactive debugger
-
-**Warning:** Do not use debug mode in production!
-
-## Testing the API
-
-### Using cURL (Windows PowerShell)
-
-**Get all tasks:**
-```powershell
-curl http://localhost:5000/api/tasks
+### 5. Run the app
+```bash
+python app.py
 ```
 
-**Create a task:**
-```powershell
-$body = @{
-    title = "New Task"
-    description = "Task description"
-} | ConvertTo-Json
+### 6. Open in browser
+Web interface: http://localhost:5000
+Health check: http://localhost:5000/health
 
-Invoke-WebRequest -Uri http://localhost:5000/api/tasks -Method POST -Body $body -ContentType "application/json"
+Run Tests
+
+```bash
+
+#From inside src/webapp:
+pytest tests/test_app.py -v
+
+#Run with Docker
+#From inside src/webapp:
+docker build -t task-manager-demo .
+docker run -p 5000:5000 task-manager-demo
 ```
 
-**Update a task:**
-```powershell
-$body = @{
-    completed = $true
-} | ConvertTo-Json
+Then open:
+http://localhost:5000
 
-Invoke-WebRequest -Uri http://localhost:5000/api/tasks/TASK_ID -Method PUT -Body $body -ContentType "application/json"
-```
+### Limitations
+Uses in-memory storage only
+Data resets when the app restarts
+No authentication
+Not intended as a production business application
+Used only as a deployment target for the project evaluation
+Project Role
 
-**Delete a task:**
-```powershell
-Invoke-WebRequest -Uri http://localhost:5000/api/tasks/TASK_ID -Method DELETE
-```
+### This component supported the following project outputs
 
-## Project Structure
-```
-src/webapp/
-├── app.py              # Main Flask application
-├── requirements.txt    # Python dependencies
-├── README.md          # This file
-├── templates/
-│   └── index.html     # Web interface
-└── venv/              # Virtual environment (not committed)
-```
-
-## Environment Variables
-
-Currently, the application uses default settings. Future environment variables:
-
-- `FLASK_ENV` - Environment (development/production)
-- `FLASK_APP` - Application entry point
-- `PORT` - Port number (default: 5000)
-
-## Known Limitations
-
-- **In-memory storage:** Tasks are lost when the application restarts
-- **No authentication:** API is publicly accessible
-- **Single instance:** No session persistence across instances
-- **No database:** Not suitable for production data persistence
-
-These limitations are intentional for demonstration purposes.
-
-## Future Enhancements (Out of Scope)
-
-- Database integration (PostgreSQL/MongoDB)
-- User authentication and authorization
-- Task categories and tags
-- Search and filtering
-- Pagination for large task lists
-- WebSocket support for real-time updates
-
-## License
-
-MIT License
-
-## Author
-
-Yonathan Surafel - Computer Science Individual Project
+Automated deployment through GitHub Actions
+Container deployment to AWS ECS/Fargate
+Collection of deployment metrics for comparative evaluation
