@@ -273,7 +273,8 @@ def get_sim_summary():
 
 
 if __name__ == '__main__':
+    port = int(os.environ.get("PORT", 5001))
     print("Starting Deployment Metrics Platform Backend...")
-    print("Running on http://localhost:5001")
-    print("API Documentation: http://localhost:5001/api/health")
-    app.run(debug=True, host='0.0.0.0', port=5001)
+    print(f"Running on http://0.0.0.0:{port}")
+    print(f"API Documentation: http://0.0.0.0:{port}/api/health")
+    app.run(debug=True, host='0.0.0.0', port=port)
