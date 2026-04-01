@@ -9,6 +9,16 @@ import ComparisonChart from '../Charts/ComparisonChart';
 import TimelineChart from './TimelineChart';
 import './StatisticalAnalysis.css';
 
+const STAT_EXPLANATIONS = {
+  t_statistic: "How large the difference is relative to the variation in the data. The higher this number, the more confident we are a real difference exists.",
+  p_value_t: "The probability that this result happened by chance.",
+  degrees_of_freedom: "Reflects the number of data points used. Higher means more reliable results.",
+  cohens_d: "Measures how big the difference actually is in practical terms.",
+  chi_square: "Measures how different the success rates are between the two methods. A low value means the difference is small.",
+  p_value_chi: "The probability that this result happened by chance.",
+  success_rates: "Automated deployments succeeded more often than manual ones, but smaller sample size has to be considered."
+};
+
 const StatisticalAnalysis = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -173,25 +183,25 @@ const StatisticalAnalysis = () => {
               <h4>Independent Samples T-Test (Deployment Duration)</h4>
               <div className="test-details">
                 <div className="test-row">
-                  <span className="test-label">t-statistic:</span>
+                  <span className="test-label">t-statistic: {STAT_EXPLANATIONS.t_statistic}</span>
                   <span className="test-value">
                     {inferential_statistics.t_test.t_statistic.toFixed(4)}
                   </span>
                 </div>
                 <div className="test-row">
-                  <span className="test-label">p-value:</span>
+                  <span className="test-label">p-value: {STAT_EXPLANATIONS.p_value_t}</span>
                   <span className={`test-value ${inferential_statistics.t_test.significant ? 'significant' : ''}`}>
                     {inferential_statistics.t_test.p_value.toExponential(4)}
                   </span>
                 </div>
                 <div className="test-row">
-                  <span className="test-label">Degrees of Freedom:</span>
+                  <span className="test-label">Degrees of Freedom: {STAT_EXPLANATIONS.degrees_of_freedom}</span>
                   <span className="test-value">
                     {inferential_statistics.t_test.degrees_of_freedom}
                   </span>
                 </div>
                 <div className="test-row">
-                  <span className="test-label">Cohen's d:</span>
+                  <span className="test-label">Cohen's d: {STAT_EXPLANATIONS.cohens_d}</span>
                   <span className="test-value">
                     {inferential_statistics.t_test.cohens_d.toFixed(4)} 
                     <span className="effect-size"> ({inferential_statistics.t_test.effect_size} effect)</span>
@@ -210,25 +220,26 @@ const StatisticalAnalysis = () => {
               <h4>Chi-Square Test (Success Rates)</h4>
               <div className="test-details">
                 <div className="test-row">
-                  <span className="test-label">χ² statistic:</span>
+                  <span className="test-label">x^2 statistic: {STAT_EXPLANATIONS.chi_square}</span>
                   <span className="test-value">
                     {inferential_statistics.chi_square.chi_square.toFixed(4)}
                   </span>
                 </div>
                 <div className="test-row">
-                  <span className="test-label">p-value:</span>
+                  <span className="test-label">p-value: {STAT_EXPLANATIONS.p_value_chi}</span>
                   <span className={`test-value ${inferential_statistics.chi_square.significant ? 'significant' : ''}`}>
                     {inferential_statistics.chi_square.p_value.toFixed(4)}
                   </span>
                 </div>
+
                 <div className="test-row">
-                  <span className="test-label">Manual Success Rate:</span>
+                  <span className="test-label">Manual Success Rate: {STAT_EXPLANATIONS.success_rates}</span>
                   <span className="test-value">
                     {inferential_statistics.chi_square.manual_success_rate.toFixed(1)}%
                   </span>
                 </div>
                 <div className="test-row">
-                  <span className="test-label">Automated Success Rate:</span>
+                  <span className="test-label">Automated Success Rate: {STAT_EXPLANATIONS.success_rates}</span>
                   <span className="test-value">
                     {inferential_statistics.chi_square.automated_success_rate.toFixed(1)}%
                   </span>

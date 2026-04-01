@@ -8,42 +8,69 @@ from scipy import stats
 from models import Deployment
 
 def calculate_descriptive_stats(deployments):
-    """Calculate descriptive statistics for a list of deployments"""
+    """Calculate descriptive statistics for a list of deployments.
+    Duration-based statistics use successful deployments only.
+    Success-rate statistics use all deployments.
+    """
     
     if not deployments:
         return None
-    
-    durations = [d.duration_seconds for d in deployments]
+
+    # Use only successful deployments for duration-based metrics
+    successful_deployments = [d for d in deployments if d.status == 'success']
+    success_count = len(successful_deployments)
+
+    # All deployments still count for reliability/success-rate metrics
+    total_count = len(deployments)
     errors = [d.errors_count for d in deployments]
-    success_count = sum(1 for d in deployments if d.status == 'success')
-    
+
+    if successful_deployments:
+        durations = [d.duration_seconds for d in successful_deployments]
+        mean_duration = np.mean(durations)
+        median_duration = np.median(durations)
+        std_duration = np.std(durations)
+        min_duration = np.min(durations)
+        max_duration = np.max(durations)
+    else:
+        mean_duration = 0
+        median_duration = 0
+        std_duration = 0
+        min_duration = 0
+        max_duration = 0
+
     return {
-        'count': len(deployments),
-        'mean_duration': np.mean(durations),
-        'median_duration': np.median(durations),
-        'std_duration': np.std(durations),
-        'min_duration': np.min(durations),
-        'max_duration': np.max(durations),
-        'mean_errors': np.mean(errors),
-        'median_errors': np.median(errors),
-        'total_errors': np.sum(errors),
+        'count': total_count,
+        'successful_count': success_count,
+        'mean_duration': mean_duration,
+        'median_duration': median_duration,
+        'std_duration': std_duration,
+        'min_duration': min_duration,
+        'max_duration': max_duration,
+        'mean_errors': np.mean(errors) if errors else 0,
+        'median_errors': np.median(errors) if errors else 0,
+        'total_errors': np.sum(errors) if errors else 0,
         'success_count': success_count,
-        'success_rate': (success_count / len(deployments)) * 100
+        'success_rate': (success_count / total_count) * 100 if total_count > 0 else 0
     }
 
 
 def perform_t_test(manual_deployments, automated_deployments):
     """
-    Perform independent samples t-test comparing deployment durations
-    
-    Returns t-statistic, p-value, and interpretation
+    Perform independent samples t-test comparing deployment durations.
+    Only successful deployments are included in duration analysis.
     """
     
     if not manual_deployments or not automated_deployments:
         return None
+
+    manual_successful = [d for d in manual_deployments if d.status == 'success']
+    automated_successful = [d for d in automated_deployments if d.status == 'success']
+
+    if not manual_successful or not automated_successful:
+        return None
     
-    manual_durations = [d.duration_seconds for d in manual_deployments]
-    auto_durations = [d.duration_seconds for d in automated_deployments]
+    manual_durations = [d.duration_seconds for d in manual_successful]
+    auto_durations = [d.duration_seconds for d in automated_successful]
     
     # Perform independent samples t-test
     t_stat, p_value = stats.ttest_ind(manual_durations, auto_durations)
@@ -57,7 +84,6 @@ def perform_t_test(manual_deployments, automated_deployments):
     )
     cohens_d = mean_diff / pooled_std if pooled_std > 0 else 0
     
-    # Interpret results
     significant = p_value < 0.05
     effect_size_interpretation = interpret_cohens_d(cohens_d)
     
@@ -68,6 +94,8 @@ def perform_t_test(manual_deployments, automated_deployments):
         'significant': significant,
         'cohens_d': float(cohens_d),
         'effect_size': effect_size_interpretation,
+        'manual_sample_size': len(manual_durations),
+        'automated_sample_size': len(auto_durations),
         'interpretation': get_t_test_interpretation(significant, cohens_d)
     }
 
@@ -112,12 +140,18 @@ def perform_chi_square_test(manual_deployments, automated_deployments):
 
 
 def calculate_confidence_interval(deployments, confidence=0.95):
-    """Calculate confidence interval for mean deployment duration"""
+    """Calculate confidence interval for mean deployment duration.
+    Only successful deployments are included.
+    """
     
     if not deployments:
         return None
+
+    successful_deployments = [d for d in deployments if d.status == 'success']
+    if not successful_deployments:
+        return None
     
-    durations = [d.duration_seconds for d in deployments]
+    durations = [d.duration_seconds for d in successful_deployments]
     
     mean = np.mean(durations)
     std_error = stats.sem(durations)
