@@ -1,10 +1,11 @@
 /**
  * ComparisonChart Component
- * Bar chart comparing manual vs automated deployments
+ * Bar chart comparing manual vs automated deployment durations
  */
 
 import React from 'react';
 import { Bar } from 'react-chartjs-2';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { defaultOptions, colors, formatDuration } from '../Charts/ChartConfig';
 import './ComparisonChart.css';
 
@@ -22,16 +23,36 @@ const ComparisonChart = ({ statistics }) => {
   const manual = statistics.manual;
   const automated = statistics.automated;
 
+  const manualMean = manual.mean_duration || 0;
+  const manualMin = manual.min_duration || 0;
+  const manualMax = manual.max_duration || 0;
+
+  const automatedMean = automated.mean_duration || 0;
+  const automatedMin = automated.min_duration || 0;
+  const automatedMax = automated.max_duration || 0;
+
+  const manualMeanErrors = manual.mean_errors || 0;
+  const automatedMeanErrors = automated.mean_errors || 0;
+
+  const timeImprovement =
+    manualMean > 0
+      ? ((manualMean - automatedMean) / manualMean) * 100
+      : 0;
+
+  const errorReduction =
+    manualMeanErrors > 0
+      ? ((manualMeanErrors - automatedMeanErrors) / manualMeanErrors) * 100
+      : 0;
+
   const data = {
-    labels: ['Average Duration', 'Min Duration', 'Max Duration', 'Average Errors'],
+    labels: ['Average Duration', 'Min Duration', 'Max Duration'],
     datasets: [
       {
         label: 'Manual',
         data: [
-          manual.avg_duration / 60, // Convert to minutes
-          manual.min_duration / 60,
-          manual.max_duration / 60,
-          manual.avg_errors,
+          manualMean / 60,
+          manualMin / 60,
+          manualMax / 60,
         ],
         backgroundColor: colors.manual.background,
         borderColor: colors.manual.border,
@@ -40,48 +61,58 @@ const ComparisonChart = ({ statistics }) => {
       {
         label: 'Automated',
         data: [
-          automated.avg_duration / 60,
-          automated.min_duration / 60,
-          automated.max_duration / 60,
-          automated.avg_errors,
+          automatedMean / 60,
+          automatedMin / 60,
+          automatedMax / 60,
         ],
         backgroundColor: colors.automated.background,
         borderColor: colors.automated.border,
         borderWidth: 2,
+        minBarLength: 6,
       },
     ],
   };
 
   const options = {
     ...defaultOptions,
+    responsive: true,
+    maintainAspectRatio: false,
     scales: {
       y: {
         beginAtZero: true,
         title: {
           display: true,
-          text: 'Time (minutes) / Count',
+          text: 'Time (minutes)',
         },
       },
     },
     plugins: {
       ...defaultOptions.plugins,
+      legend: {
+        display: true,
+      },
       tooltip: {
         ...defaultOptions.plugins.tooltip,
         callbacks: {
-          label: function(context) {
+          label: function (context) {
             let label = context.dataset.label || '';
             if (label) {
               label += ': ';
             }
-            if (context.dataIndex === 3) {
-              // Errors count
-              label += context.parsed.y.toFixed(1) + ' errors';
-            } else {
-              // Duration
-              label += formatDuration(context.parsed.y * 60);
-            }
+            label += formatDuration(context.parsed.y * 60);
             return label;
           },
+        },
+      },
+      datalabels: {
+        anchor: 'end',
+        align: 'end',
+        formatter: function (value) {
+          return value.toFixed(1) + ' min';
+        },
+        font: {
+          weight: 'bold',
+          size: 10,
         },
       },
     },
@@ -90,23 +121,21 @@ const ComparisonChart = ({ statistics }) => {
   return (
     <div className="chart-container">
       <h3 className="chart-title">📊 Manual vs Automated Comparison</h3>
-      <div className="chart-wrapper">
-        <Bar data={data} options={options} />
+      <div className="chart-wrapper" style={{ height: '420px' }}>
+        <Bar data={data} options={options} plugins={[ChartDataLabels]} />
       </div>
-      
+
       <div className="chart-insights">
         <div className="insight-item">
           <span className="insight-label">Time Improvement:</span>
           <span className="insight-value">
-            {((manual.avg_duration - automated.avg_duration) / manual.avg_duration * 100).toFixed(1)}%
+            {timeImprovement.toFixed(1)}%
           </span>
         </div>
         <div className="insight-item">
           <span className="insight-label">Error Reduction:</span>
           <span className="insight-value">
-            {manual.avg_errors > 0 ? 
-              ((manual.avg_errors - automated.avg_errors) / manual.avg_errors * 100).toFixed(1) : 
-              '0'}%
+            {errorReduction.toFixed(1)}%
           </span>
         </div>
       </div>

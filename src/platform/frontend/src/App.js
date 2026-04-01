@@ -51,7 +51,7 @@ function App() {
 
       <footer className="footer">
         <p>
-          Deployment Metrics Platform - Week 7 | 
+          Deployment Metrics Platform | 
           Backend: <code>http://localhost:5001</code>
         </p>
       </footer>

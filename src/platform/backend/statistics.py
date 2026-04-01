@@ -194,14 +194,14 @@ def get_t_test_interpretation(significant, cohens_d):
     """Get readable interpretation of t-test results"""
     if significant:
         effect_size = interpret_cohens_d(cohens_d)
-        return f"The difference in deployment times is statistically significant (p < 0.05) with a {effect_size} effect size. Automated deployments are significantly faster than manual deployments."
+        return f"Automated deployments are significantly faster than manual deployments. This difference is unlikely to be due to chance (p < 0.05) with an effect size of: {effect_size}, meaning the CI/CD pipeline produces a genuine, repeatable speed improvement"
     else:
-        return "The difference in deployment times is not statistically significant (p >= 0.05). There is insufficient evidence to conclude that automated deployments are faster."
+        return "No significant speed difference was found between automated and manual deployments. The observed difference could be due to chance (p ≥ 0.05), meaning the sample data does not strongly support a consistent time improvement."
 
 
 def get_chi_square_interpretation(significant):
     """Get readable interpretation of chi-square test results"""
     if significant:
-        return "The difference in success rates is statistically significant (p < 0.05). Automated deployments have a significantly different success rate compared to manual deployments."
+        return "Automated and manual deployments differ significantly in their success rates. This result is unlikely to be due to chance (p < 0.05), suggesting the CI/CD pipeline genuinely improves deployment reliability."
     else:
-        return "The difference in success rates is not statistically significant (p >= 0.05)."
+        return "No significant difference in success rates was found between automated and manual deployments. The observed difference could be due to chance (p ≥ 0.05), and the data does not strongly support a reliability improvement."

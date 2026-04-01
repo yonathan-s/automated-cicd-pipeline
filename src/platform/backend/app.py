@@ -40,7 +40,10 @@ CORS(app)
 
 
 # Configuration
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///deployments.db'
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+db_path = os.path.join(BASE_DIR, 'deployments.db')
+
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize database
@@ -100,14 +103,25 @@ def create_deployment():
         if field not in data:
             return jsonify({'error': f'Missing required field: {field}'}), 400
     
+        # Parse optional timestamp from request
+    deployment_timestamp = None
+    if data.get('timestamp'):
+        try:
+            deployment_timestamp = datetime.fromisoformat(
+                data['timestamp'].replace('Z', '+00:00')
+            )
+        except ValueError:
+            return jsonify({'error': 'Invalid timestamp format. Use ISO 8601 format.'}), 400
+
     # Create deployment
     deployment = Deployment(
         deployment_type=data['deployment_type'],
         commit_sha=data.get('commit_sha'),
         duration_seconds=data['duration_seconds'],
         status=data['status'],
+        timestamp=deployment_timestamp if deployment_timestamp else datetime.utcnow(),
         triggered_by=data.get('triggered_by', 'Unknown'),
-        tests_passed=data.get('tests_passed', True),
+        tests_passed=data.get('tests_passed', 0),
         tests_total=data.get('tests_total', 0),
         tests_failed=data.get('tests_failed', 0),
         security_scan_passed=data.get('security_scan_passed', True),
@@ -175,17 +189,30 @@ def get_statistics():
     
     # Calculate comparison if both types exist
     comparison = None
+
     if stats['manual'] and stats['automated']:
         manual_avg = stats['manual']['avg_duration']
         auto_avg = stats['automated']['avg_duration']
-        
+
+        # Prevent division by zero
+        time_improvement = 0
+        if manual_avg > 0:
+            time_improvement = ((manual_avg - auto_avg) / manual_avg) * 100
+
+        error_reduction = 0
+        if stats['manual']['avg_errors'] > 0:
+            error_reduction = (
+                (stats['manual']['avg_errors'] - stats['automated']['avg_errors'])
+                / stats['manual']['avg_errors']
+            ) * 100
+
         comparison = {
-            'time_improvement_percent': ((manual_avg - auto_avg) / manual_avg) * 100,
+            'time_improvement_percent': time_improvement,
             'time_improvement_absolute': manual_avg - auto_avg,
-            'error_reduction_percent': ((stats['manual']['avg_errors'] - stats['automated']['avg_errors']) / stats['manual']['avg_errors']) * 100 if stats['manual']['avg_errors'] > 0 else 0,
+            'error_reduction_percent': error_reduction,
             'success_rate_improvement': stats['automated']['success_rate'] - stats['manual']['success_rate']
         }
-    
+
     return jsonify({
         'statistics': stats,
         'comparison': comparison

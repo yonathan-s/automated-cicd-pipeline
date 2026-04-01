@@ -70,66 +70,78 @@ This is the deployable demo application. It is the application built into a Dock
 ### infrastructure/terraform
 This defines the AWS infrastructure used for deployment:
 
-VPC
-subnets
-internet gateway
-NAT gateway
-security groups
-load balancer
-ECS cluster/service
-ECR repository
+- VPC
+- Subnets
+- Internet gateway
+- NAT gateway
+- Security groups
+- Load balancer
+- ECS cluster/service
+- ECR repository
 
 ### .github/workflows
 This contains the CI/CD workflow that:
 
-builds the Docker image
-scans it
-runs tests
-pushes the image to ECR
-redeploys the ECS service
-sends deployment metrics to the metrics platform (This has not been implemented yet. For now all automated deployment metrics are manually inputted to the platform)
+- Builds the Docker image
+- Scans it
+- Runs tests
+- Pushes the image to ECR
+- Redeploys the ECS service
+- Sends deployment metrics to the metrics platform (This has not been implemented yet. For now all automated deployment metrics are manually inputted to the platform)
 
 ### src/platform/backend
 
 This is the backend API for the deployment metrics platform.
 
+
 ### src/platform/frontend
 
 This is the React dashboard for visualising deployment data and statistical analysis.
+
 
 ## Local Run Summary
 
 Detailed instructions are in SUBMISSION_GUIDE.md.
 
+
 ### Demo web app
+```bash 
 cd src/webapp
 python -m venv venv
 pip install -r requirements.txt
 python app.py
+```
+
 ### Platform backend
+```bash 
 cd src/platform/backend
 python -m venv venv
 pip install -r requirements.txt
 python app.py
+```
+
 ### Platform frontend
+```bash 
 cd src/platform/frontend
 npm install
 npm start
+```
 ### Terraform Notes
-Terraform commands are run from:
-
-cd infrastructure/terraform
+Terraform commands are run from 
+```bash 
+cd infrastructure/terraform 
+```
 
 Typical commands:
 
+```bash
 terraform init
 terraform validate
 terraform plan
+```
 
 ## Important Submission Notes
 The metrics platform frontend expects a backend API URL.
-
-The GitHub Actions workflow currently does not send deployment metrics to the platform. I have not yet made it so that all metrics are sent automatically. This is because I would need to deploy the metric platform to allow it to reach the deployment metrics, and I have decided to hold off on doing this until more core components of the project are finalised.
 
 Some cloud deployment features require AWS credentials and GitHub secrets, which are not included in the code submission.
 

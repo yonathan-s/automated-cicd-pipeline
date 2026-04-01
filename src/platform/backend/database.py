@@ -23,7 +23,7 @@ def seed_initial_data():
     
     print("Seeding initial manual deployment data...")
     
-    # Your Week 4 manual deployment (baseline)
+    # My manual deployment (baseline)
     manual_deployment = Deployment(
         deployment_type='manual',
         duration_seconds=43200,  # 12 hours
@@ -80,20 +80,27 @@ def get_deployment_statistics():
     automated_deployments = Deployment.query.filter_by(deployment_type='automated').all()
     
     def calculate_stats(deployments):
-        if not deployments:
-            return None
-        
-        durations = [d.duration_seconds for d in deployments]
-        errors = [d.errors_count for d in deployments]
+        if not deployments or len(deployments) == 0:
+            return {
+                'count': 0,
+                'avg_duration': 0,
+                'min_duration': 0,
+                'max_duration': 0,
+                'avg_errors': 0,
+                'success_rate': 0
+            }
+
+        durations = [d.duration_seconds for d in deployments if d.duration_seconds is not None]
+        errors = [d.errors_count for d in deployments if d.errors_count is not None]
         success_count = sum(1 for d in deployments if d.status == 'success')
-        
+
         return {
             'count': len(deployments),
-            'avg_duration': sum(durations) / len(durations),
-            'min_duration': min(durations),
-            'max_duration': max(durations),
-            'avg_errors': sum(errors) / len(errors),
-            'success_rate': (success_count / len(deployments)) * 100
+            'avg_duration': sum(durations) / len(durations) if durations else 0,
+            'min_duration': min(durations) if durations else 0,
+            'max_duration': max(durations) if durations else 0,
+            'avg_errors': sum(errors) / len(errors) if errors else 0,
+            'success_rate': (success_count / len(deployments)) * 100 if deployments else 0
         }
     
     return {
