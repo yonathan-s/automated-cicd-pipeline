@@ -1,3 +1,5 @@
+
+
 name: Deploy to AWS
 
 on:
@@ -20,12 +22,12 @@ env:
   CONTAINER_NAME: task-manager-container
   METRICS_PLATFORM_URL: ${{ secrets.METRICS_PLATFORM_URL }}
 
+
 jobs:
   build-and-deploy:
     name: Build and Deploy
     runs-on: ubuntu-latest
 
-    # Safe output only 
     outputs:
       deployed: ${{ steps.mark-deployed.outputs.deployed }}
 
@@ -45,38 +47,27 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
+      
+      # This was intended for rollback but couldn't get it to work so I commented out:   
+      #- name: Capture current ECS task definition
+      #  run: |
 
-      # Capture task definition BEFORE any deploy, store as artifact (avoids "output may contain secret" skipping)
-      - name: Capture current ECS task definition (pre-deploy)
-        run: |
-          set -euo pipefail
+      #    echo "Cluster: $ECS_CLUSTER"
+      #    echo "Service: $ECS_SERVICE"
+      #    echo "Region:  $AWS_REGION"
 
-          echo "Cluster: $ECS_CLUSTER"
-          echo "Service: $ECS_SERVICE"
-          echo "Region:  $AWS_REGION"
+          
 
-          PREV_TASK_DEF_ARN=$(aws ecs describe-services \
-            --cluster "$ECS_CLUSTER" \
-            --services "$ECS_SERVICE" \
-            --query 'services[0].taskDefinition' \
-            --output text \
-            --region "$AWS_REGION")
+      #    echo "Previous task definition ARN:"
 
-          if [ -z "$PREV_TASK_DEF_ARN" ] || [ "$PREV_TASK_DEF_ARN" = "None" ]; then
-            echo "ERROR: Could not determine previous task definition ARN (got: '$PREV_TASK_DEF_ARN')."
-            echo "Check ECS_CLUSTER/ECS_SERVICE/AWS_REGION and IAM permission ecs:DescribeServices."
-            exit 1
-          fi
+      
+      #- name: Upload previous task definition artifact # for the rollback job to use
+      #  uses: actions/upload-artifact@v4
+      #  with:
+      #    name: prev-taskdef
+      #    path: prev-taskdef.txt
 
-          echo "$PREV_TASK_DEF_ARN" > prev-taskdef.txt
-          echo "Captured previous task definition ARN."
-
-      - name: Upload previous task definition artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: prev-taskdef
-          path: prev-taskdef.txt
-
+      # to push docker images to the private registry:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
@@ -85,11 +76,11 @@ jobs:
         working-directory: ./src/webapp
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}
+          IMAGE_TAG: ${{ github.sha }} 
         run: |
           set -euo pipefail
           echo "Building Docker image..."
-          docker build -t "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" .
+          docker build -t "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" . 
           docker tag "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" "$ECR_REGISTRY/$ECR_REPOSITORY:latest"
           echo "Docker image built successfully"
 
@@ -118,7 +109,6 @@ jobs:
           name: trivy-scan-results
           path: trivy-results.sarif
 
-      # Tests MUST fail the job if they fail
       - name: Run tests
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -152,11 +142,11 @@ jobs:
             --region "$AWS_REGION"
           echo "ECS service update initiated"
 
-      # Mark that a deploy was actually attempted (safe output used by rollback condition)
       - name: Mark deployed
         id: mark-deployed
         run: echo "deployed=true" >> $GITHUB_OUTPUT
 
+      # added to ensure all tasks are running before next steps
       - name: Wait for deployment
         run: |
           set -euo pipefail
@@ -192,7 +182,7 @@ jobs:
             response=$(curl -s -o /dev/null -w "%{http_code}" "http://${{ steps.get-alb.outputs.alb_dns }}/health" || echo "000")
 
             if [ "$response" = "200" ]; then
-              echo "✓ Health check passed!"
+              echo " Health check passed!"
               exit 0
             fi
 
@@ -202,24 +192,22 @@ jobs:
             attempt=$((attempt + 1))
           done
 
-          echo "✗ Health check failed after $max_attempts attempts"
+          echo " Health check failed after $max_attempts attempts"
           exit 1
 
-      # BACK: Deployment Summary
       - name: Deployment Summary
-        if: always()
+        # need this to give metrics regardless of failure:
+        if: always() 
         run: |
           echo "================================"
           echo "DEPLOYMENT SUMMARY"
-          echo "================================"
+          echo " "
           echo "Commit: ${{ github.sha }}"
           echo "Branch: ${{ github.ref_name }}"
           echo "Triggered by: ${{ github.actor }}"
           echo "Status: ${{ job.status }}"
           echo "Application URL: http://${{ steps.get-alb.outputs.alb_dns }}"
-          echo "================================"
 
-      # BACK: Deployment Metrics
       - name: Record deployment metrics
         if: always()
         run: |
@@ -239,34 +227,10 @@ jobs:
           echo "Timestamp: $(date)"
           echo "================================"
 
-      - name: Deployment Failed Notification
-        if: failure()
-        run: |
-          echo "=========================================="
-          echo "DEPLOYMENT FAILED"
-          echo "=========================================="
-          echo "Commit: ${{ github.sha }}"
-          echo "Branch: ${{ github.ref_name }}"
-          echo "Author: ${{ github.actor }}"
-          echo "Time: $(date)"
-          echo ""
-          echo "Check the logs above for details."
-          echo "Rollback job will attempt to restore service."
-          echo "=========================================="
+    
 
-      - name: Deployment Success Notification
-        if: success()
-        run: |
-          echo "=========================================="
-          echo "DEPLOYMENT SUCCESSFUL"
-          echo "=========================================="
-          echo "Commit: ${{ github.sha }}"
-          echo "Branch: ${{ github.ref_name }}"
-          echo "Author: ${{ github.actor }}"
-          echo "Application: http://${{ steps.get-alb.outputs.alb_dns }}"
-          echo "Time: $(date)"
-          echo "=========================================="
       
+      # continues on error if platform is offline
       - name: Send metrics to platform
         if: always()
         continue-on-error: true
@@ -275,15 +239,12 @@ jobs:
           START_TIME=${{ steps.start-time.outputs.start_time }}
           DURATION=$((END_TIME - START_TIME))
           
-          # Determine test results
           TESTS_PASSED="true"
           TESTS_FAILED=0
           
-          # Determine security scan results  
           SECURITY_PASSED="true"
           SECURITY_VULNS=0
           
-          # Determine overall status
           if [ "${{ job.status }}" = "success" ]; then
             STATUS="success"
           else
@@ -294,7 +255,6 @@ jobs:
           echo "Duration: ${DURATION}s"
           echo "Status: ${STATUS}"
           
-          # Send to metrics platform (only works if platform is running)
           curl -X POST ${{ env.METRICS_PLATFORM_URL }}/api/deployments \
             -H "Content-Type: application/json" \
             -d '{
@@ -314,70 +274,51 @@ jobs:
           
           echo "Metrics sent (or skipped if platform offline)"
 
-  rollback:
-    name: Rollback on Failure
-    runs-on: ubuntu-latest
-    needs: build-and-deploy
+  #not working
+  #rollback:
+  #  name: Rollback on Failure
+  #  runs-on: ubuntu-latest
+  #  needs: build-and-deploy
 
-    #  Only rollback when:
-    # - build-and-deploy failed AND
-    # - deploy was actually attempted (so we don't rollback when tests fail before deploy)
-    if: ${{ always() && needs.build-and-deploy.result == 'failure' && needs.build-and-deploy.outputs.deployed == 'true' }}
 
-    steps:
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+  #  steps:
+  #    - name: Configure AWS credentials
+  #      uses: aws-actions/configure-aws-credentials@v4
+  #      with:
+  #        aws-access-key-id: ${{ 
+  #        aws-secret-access-key: 
+  #        aws-region: ${{ secrets.AWS_REGION
 
-      - name: Download previous task definition artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: prev-taskdef
+  
 
-      - name: Rollback deployment to previous task definition
-        run: |
-          set -euo pipefail
-          echo "Deployment failed! Rolling back..."
+ 
 
-          PREV_TASK_DEF_ARN=$(cat prev-taskdef.txt)
-          if [ -z "$PREV_TASK_DEF_ARN" ]; then
-            echo "ERROR: prev-taskdef.txt is empty."
-            exit 1
-          fi
 
-          echo "Rolling back to: $PREV_TASK_DEF_ARN"
+         # aws ecs update-service \
+         #   --cluster "$ECS_CLUSTER" \
+         #   --service "$ECS_SERVICE" \
+           # --force-new-deployment \
+            #--region "$AWS_REGION"
 
-          aws ecs update-service \
-            --cluster "$ECS_CLUSTER" \
-            --service "$ECS_SERVICE" \
-            --task-definition "$PREV_TASK_DEF_ARN" \
-            --force-new-deployment \
-            --region "$AWS_REGION"
+          #echo "Rollback initiated"
 
-          echo "Rollback initiated"
+      #- name: Wait for rollback 
+      #  run: |
+        #  echo "Waiting for rollback to stabilize..."
+        #  aws ecs wait services-stable \
+        #    --cluster "$ECS_CLUSTER" \
+      #      --services "$ECS_SERVICE" \
+      #      --region "$AWS_REGION"
+      #    echo "Rollback complete!"
 
-      - name: Wait for rollback to stabilize
-        run: |
-          set -euo pipefail
-          echo "Waiting for rollback to stabilize..."
-          aws ecs wait services-stable \
-            --cluster "$ECS_CLUSTER" \
-            --services "$ECS_SERVICE" \
-            --region "$AWS_REGION"
-          echo "Rollback complete!"
-
-      - name: Rollback Summary
-        run: |
-          echo "=========================================="
-          echo "DEPLOYMENT FAILED AND ROLLED BACK"
-          echo "=========================================="
-          echo "Restored task definition: $(cat prev-taskdef.txt)"
-          echo "Commit: ${{ github.sha }}"
-          echo "Branch: ${{ github.ref_name }}"
-          echo "Triggered by: ${{ github.actor }}"
-          echo "Time: $(date)"
-          echo "=========================================="
+    #  - name: Rollback Summary
+    #    run: |
+    #      echo " "
+     #     echo "DEPLOYMENT FAILED AND ROLLED BACK"
+     #     echo " "
+     #     echo "Restored task definition: $(cat prev-taskdef.txt)"
+     #     echo "Commit: ${{ github.sha }
+    #      echo "Branch: ${{ github.ref_name }
+    #      echo "Triggered by: ${{ github.actor }
+    #      echo "Time: $(date)"
       

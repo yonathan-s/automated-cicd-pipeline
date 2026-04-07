@@ -161,7 +161,7 @@ docker compose up -d --scale web=3
 
 ### Multi-stage Build
 
-Our Dockerfile uses a multi-stage build for optimization:
+Dockerfile uses a multi-stage build for optimization:
 
 **Stage 1: Builder**
 - Installs build dependencies

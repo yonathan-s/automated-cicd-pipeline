@@ -14,9 +14,7 @@ services:
       - FLASK_DEBUG=True
       - FLASK_APP=app.py
     volumes:
-      # Mount code for hot-reload
       - ./:/app
-      # Don't mount venv
       - /app/venv
     restart: unless-stopped
     networks:

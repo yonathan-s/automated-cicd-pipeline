@@ -60,7 +60,7 @@ const DeploymentList = ({ deployments, title = 'Recent Deployments', limit = 10 
 
                 <div className="deployment-meta">
                   <span className="deployment-duration">
-                    ⏱ {deployment.duration_formatted}
+                    ⏱ {deployment.duration_seconds} seconds ({Math.floor(deployment.duration_seconds / 3600)}h {Math.floor((deployment.duration_seconds % 3600) / 60)}m)
                   </span>
                   <span className="deployment-time">
                     {format(new Date(deployment.timestamp), 'MMM d, HH:mm')}

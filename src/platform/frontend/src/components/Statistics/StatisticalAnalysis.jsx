@@ -1,7 +1,4 @@
-/**
- * StatisticalAnalysis Component
- * Displays statistical test results and analysis
- */
+
 
 import React, { useState, useEffect } from 'react';
 import { getFullAnalysis, getDeployments } from '../../services/api';
@@ -81,18 +78,15 @@ const StatisticalAnalysis = () => {
         </button>
       </div>
 
-      {/* Charts */}
       <div className="charts-section">
         <ComparisonChart statistics={descriptive_statistics} />
         <TimelineChart deployments={deployments} />
       </div>
 
-      {/* Descriptive Statistics */}
       <div className="statistics-section">
         <h3>📋 Descriptive Statistics</h3>
         
         <div className="statistics-grid">
-          {/* Manual Statistics */}
           <div className="stat-card">
             <h4>Manual Deployments</h4>
             {descriptive_statistics?.manual ? (
@@ -131,7 +125,6 @@ const StatisticalAnalysis = () => {
             )}
           </div>
 
-          {/* Automated Statistics */}
           <div className="stat-card">
             <h4>Automated Deployments</h4>
             {descriptive_statistics?.automated ? (
@@ -172,12 +165,10 @@ const StatisticalAnalysis = () => {
         </div>
       </div>
 
-      {/* Inferential Statistics */}
       {inferential_statistics && (
         <div className="statistics-section">
-          <h3>📈 Inferential Statistics</h3>
+          <h3>📊 Inferential Statistics</h3>
           
-          {/* T-Test Results */}
           {inferential_statistics.t_test && (
             <div className="test-result">
               <h4>Independent Samples T-Test (Deployment Duration)</h4>
@@ -214,7 +205,6 @@ const StatisticalAnalysis = () => {
             </div>
           )}
 
-          {/* Chi-Square Results */}
           {inferential_statistics.chi_square && (
             <div className="test-result">
               <h4>Chi-Square Test (Success Rates)</h4>
@@ -222,26 +212,34 @@ const StatisticalAnalysis = () => {
                 <div className="test-row">
                   <span className="test-label">x^2 statistic: {STAT_EXPLANATIONS.chi_square}</span>
                   <span className="test-value">
-                    {inferential_statistics.chi_square.chi_square.toFixed(4)}
+                    {typeof inferential_statistics.chi_square.chi_square === 'number'
+                      ? inferential_statistics.chi_square.chi_square.toFixed(4)
+                      : inferential_statistics.chi_square.chi_square}
                   </span>
                 </div>
                 <div className="test-row">
                   <span className="test-label">p-value: {STAT_EXPLANATIONS.p_value_chi}</span>
                   <span className={`test-value ${inferential_statistics.chi_square.significant ? 'significant' : ''}`}>
-                    {inferential_statistics.chi_square.p_value.toFixed(4)}
+                    {typeof inferential_statistics.chi_square.p_value === 'number'
+                      ? inferential_statistics.chi_square.p_value.toFixed(4)
+                      : inferential_statistics.chi_square.p_value}
                   </span>
                 </div>
 
                 <div className="test-row">
                   <span className="test-label">Manual Success Rate: {STAT_EXPLANATIONS.success_rates}</span>
                   <span className="test-value">
-                    {inferential_statistics.chi_square.manual_success_rate.toFixed(1)}%
+                    {typeof inferential_statistics.chi_square.manual_success_rate === 'number'
+                      ? `${inferential_statistics.chi_square.manual_success_rate.toFixed(1)}%`
+                      : inferential_statistics.chi_square.manual_success_rate}
                   </span>
                 </div>
                 <div className="test-row">
                   <span className="test-label">Automated Success Rate: {STAT_EXPLANATIONS.success_rates}</span>
                   <span className="test-value">
-                    {inferential_statistics.chi_square.automated_success_rate.toFixed(1)}%
+                    {typeof inferential_statistics.chi_square.automated_success_rate === 'number'
+                      ? `${inferential_statistics.chi_square.automated_success_rate.toFixed(1)}%`
+                      : inferential_statistics.chi_square.automated_success_rate}
                   </span>
                 </div>
                 <div className="test-interpretation">
@@ -253,10 +251,9 @@ const StatisticalAnalysis = () => {
         </div>
       )}
 
-      {/* Improvement Metrics */}
       {improvement_metrics && (
         <div className="statistics-section">
-          <h3>🎯 Improvement Metrics</h3>
+          <h3>Improvement Metrics</h3>
           <div className="improvement-grid">
             <div className="improvement-card">
               <div className="improvement-icon">⚡</div>
@@ -270,7 +267,7 @@ const StatisticalAnalysis = () => {
             </div>
 
             <div className="improvement-card">
-              <div className="improvement-icon">🐛</div>
+              <div className="improvement-icon">++</div>
               <div className="improvement-label">Error Reduction</div>
               <div className="improvement-value">
                 {improvement_metrics.error_reduction_percent.toFixed(1)}%
@@ -294,7 +291,6 @@ const StatisticalAnalysis = () => {
         </div>
       )}
 
-      {/* Academic Note */}
       <div className="academic-note">
         <h4>📚 Statistical Significance Note</h4>
         <p>

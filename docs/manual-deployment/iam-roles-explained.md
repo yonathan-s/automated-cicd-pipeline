@@ -27,8 +27,7 @@ ECS uses two separate IAM roles with different purposes:
 - Future examples: Access S3, DynamoDB, SNS, etc.
 
 **When it's used:**
-- When your application code makes AWS SDK calls
-- Example: If my app needs to upload files to S3
+- When my application code makes AWS SDK calls
 
 **ARN:** arn:aws:iam::222575804813:role/taskManagerTaskRole
 

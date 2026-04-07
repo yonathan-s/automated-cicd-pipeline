@@ -1,26 +1,13 @@
-"""
-Statistical Analysis Module
-Performs statistical tests on deployment data
-"""
-
 import numpy as np
 from scipy import stats
 from models import Deployment
 
-def calculate_descriptive_stats(deployments):
-    """Calculate descriptive statistics for a list of deployments.
-    Duration-based statistics use successful deployments only.
-    Success-rate statistics use all deployments.
-    """
-    
-    if not deployments:
-        return None
-
-    # Use only successful deployments for duration-based metrics
+def stats_with_description(deployments):
+    #I'll use successful deployments
     successful_deployments = [d for d in deployments if d.status == 'success']
     success_count = len(successful_deployments)
 
-    # All deployments still count for reliability/success-rate metrics
+    #all deployments still count for to coount metrics for reliability + errors rates
     total_count = len(deployments)
     errors = [d.errors_count for d in deployments]
 
@@ -38,6 +25,7 @@ def calculate_descriptive_stats(deployments):
         min_duration = 0
         max_duration = 0
 
+
     return {
         'count': total_count,
         'successful_count': success_count,
@@ -54,38 +42,27 @@ def calculate_descriptive_stats(deployments):
     }
 
 
-def perform_t_test(manual_deployments, automated_deployments):
-    """
-    Perform independent samples t-test comparing deployment durations.
-    Only successful deployments are included in duration analysis.
-    """
+def t_test(manual_deployments, automated_deployments):
     
-    if not manual_deployments or not automated_deployments:
-        return None
-
     manual_successful = [d for d in manual_deployments if d.status == 'success']
     automated_successful = [d for d in automated_deployments if d.status == 'success']
-
-    if not manual_successful or not automated_successful:
-        return None
     
     manual_durations = [d.duration_seconds for d in manual_successful]
     auto_durations = [d.duration_seconds for d in automated_successful]
     
-    # Perform independent samples t-test
+    #ttest_ind does a t-test on the means of manual and automated times
     t_stat, p_value = stats.ttest_ind(manual_durations, auto_durations)
     
-    # Calculate effect size (Cohen's d)
     mean_diff = np.mean(manual_durations) - np.mean(auto_durations)
-    pooled_std = np.sqrt(
+
+    deviation = np.sqrt(
         ((len(manual_durations) - 1) * np.std(manual_durations, ddof=1)**2 + 
-         (len(auto_durations) - 1) * np.std(auto_durations, ddof=1)**2) / 
-        (len(manual_durations) + len(auto_durations) - 2)
+         (len(auto_durations) - 1) * np.std(auto_durations, ddof=1)**2) / (len(manual_durations) + len(auto_durations) - 2)
     )
-    cohens_d = mean_diff / pooled_std if pooled_std > 0 else 0
+    cohens_d = mean_diff / deviation if deviation > 0 else 0
     
     significant = p_value < 0.05
-    effect_size_interpretation = interpret_cohens_d(cohens_d)
+    effect_size_interpretation = cohens_d_interp(cohens_d)
     
     return {
         't_statistic': float(t_stat),
@@ -99,58 +76,39 @@ def perform_t_test(manual_deployments, automated_deployments):
         'interpretation': get_t_test_interpretation(significant, cohens_d)
     }
 
+#COME BACK TO THIS LATER!
+"""
+def chi_square_tests(manual_deployments, automated_deployments):
 
-def perform_chi_square_test(manual_deployments, automated_deployments):
-    """
-    Perform chi-square test for success rates
     
-    Returns chi-square statistic, p-value, and interpretation
-    """
-    
-    if not manual_deployments or not automated_deployments:
-        return None
-    
-    # Count successes and failures
     manual_success = sum(1 for d in manual_deployments if d.status == 'success')
     manual_failure = len(manual_deployments) - manual_success
     
     auto_success = sum(1 for d in automated_deployments if d.status == 'success')
     auto_failure = len(automated_deployments) - auto_success
     
-    # Create contingency table
-    observed = np.array([
-        [manual_success, manual_failure],
-        [auto_success, auto_failure]
-    ])
+    A = np.array([manual_success, auto_success])
     
-    # Perform chi-square test
-    chi2, p_value, dof, expected = stats.chi2_contingency(observed)
-    
+    # will do for now but come back to
+    chi2, p_value = stats.chisquare(A)
     significant = p_value < 0.05
     
     return {
         'chi_square': float(chi2),
         'p_value': float(p_value),
-        'degrees_of_freedom': int(dof),
         'significant': significant,
         'manual_success_rate': (manual_success / len(manual_deployments)) * 100,
         'automated_success_rate': (auto_success / len(automated_deployments)) * 100,
         'interpretation': get_chi_square_interpretation(significant)
     }
 
+"""
 
-def calculate_confidence_interval(deployments, confidence=0.95):
-    """Calculate confidence interval for mean deployment duration.
-    Only successful deployments are included.
-    """
+#gives me a range of plausible deployment times based on my sample data (confidence level)
+def clevel(deployments, confidence=0.95):
     
-    if not deployments:
-        return None
-
     successful_deployments = [d for d in deployments if d.status == 'success']
-    if not successful_deployments:
-        return None
-    
+   
     durations = [d.duration_seconds for d in successful_deployments]
     
     mean = np.mean(durations)
@@ -162,29 +120,19 @@ def calculate_confidence_interval(deployments, confidence=0.95):
         'confidence_level': confidence,
         'lower_bound': float(mean - interval),
         'upper_bound': float(mean + interval),
-        'margin_of_error': float(interval)
+        'margin': float(interval)
     }
 
 
-def perform_full_analysis():
-    """Perform complete statistical analysis on all deployments"""
+def perform_analysis():
     
     manual_deployments = Deployment.query.filter_by(deployment_type='manual').all()
     automated_deployments = Deployment.query.filter_by(deployment_type='automated').all()
     
-    # Descriptive statistics
-    manual_stats = calculate_descriptive_stats(manual_deployments)
-    automated_stats = calculate_descriptive_stats(automated_deployments)
+
+    manual_stats = stats_with_description(manual_deployments)
+    automated_stats = stats_with_description(automated_deployments)
     
-    # Inferential statistics
-    t_test_results = perform_t_test(manual_deployments, automated_deployments)
-    chi_square_results = perform_chi_square_test(manual_deployments, automated_deployments)
-    
-    # Confidence intervals
-    manual_ci = calculate_confidence_interval(manual_deployments)
-    automated_ci = calculate_confidence_interval(automated_deployments)
-    
-    # Calculate improvement metrics
     improvement = None
     if manual_stats and automated_stats:
         improvement = {
@@ -193,14 +141,28 @@ def perform_full_analysis():
             'error_reduction_percent': ((manual_stats['mean_errors'] - automated_stats['mean_errors']) / manual_stats['mean_errors'] * 100) if manual_stats['mean_errors'] > 0 else 0,
             'success_rate_improvement': automated_stats['success_rate'] - manual_stats['success_rate']
         }
-    
+
+    t_tests = t_test(manual_deployments, automated_deployments)
+
+    # Provide values when done
+    chi_square_results = {
+        'chi_square': 'N/A',
+        'p_value': 'N/A',
+        'degrees_of_freedom': 'N/A',
+        'significant': False,
+        'manual_success_rate': 'N/A',
+        'automated_success_rate': 'N/A',
+        'interpretation': 'N/A'
+    }
+    manual_ci = clevel(manual_deployments)
+    automated_ci = clevel(automated_deployments)
     return {
         'descriptive_statistics': {
             'manual': manual_stats,
             'automated': automated_stats
         },
-        'inferential_statistics': {
-            't_test': t_test_results,
+        'improved_statistics': {
+            't_test': t_tests,
             'chi_square': chi_square_results
         },
         'confidence_intervals': {
@@ -211,8 +173,7 @@ def perform_full_analysis():
     }
 
 
-def interpret_cohens_d(d):
-    """Interpret Cohen's d effect size"""
+def cohens_d_interp(d):
     abs_d = abs(d)
     if abs_d < 0.2:
         return 'negligible'
@@ -225,17 +186,17 @@ def interpret_cohens_d(d):
 
 
 def get_t_test_interpretation(significant, cohens_d):
-    """Get readable interpretation of t-test results"""
     if significant:
-        effect_size = interpret_cohens_d(cohens_d)
-        return f"Automated deployments are significantly faster than manual deployments. This difference is unlikely to be due to chance (p < 0.05) with an effect size of: {effect_size}, meaning the CI/CD pipeline produces a genuine, repeatable speed improvement"
+        effect_size = cohens_d_interp(cohens_d)
+        return f"Automated deployments are significantly faster than manual deployment with an effect size of: {effect_size}, This means the CI/CD pipeline produces a  speed improvement"
     else:
-        return "No significant speed difference was found between automated and manual deployments. The observed difference could be due to chance (p ≥ 0.05), meaning the sample data does not strongly support a consistent time improvement."
+        return "No significant speed differences was found between automated and manual deployments. The difference could be due to chance (p ≥ 0.05), meaning the sample data does not strongly support a consistent time improvement."
 
 
-def get_chi_square_interpretation(significant):
-    """Get readable interpretation of chi-square test results"""
+#ncomment when chi-square tests are done properly
+"""def get_chi_square_interpretation(significant):
     if significant:
-        return "Automated and manual deployments differ significantly in their success rates. This result is unlikely to be due to chance (p < 0.05), suggesting the CI/CD pipeline genuinely improves deployment reliability."
+        return "Automated and mannual deployments differ significantly in their success rates. Unlikely to be due to chance (p < 0.05)"
     else:
-        return "No significant difference in success rates was found between automated and manual deployments. The observed difference could be due to chance (p ≥ 0.05), and the data does not strongly support a reliability improvement."
+        return "No significant difference in success rates was found between automated and manual deployment. The observed difference could be due to chance (p ≥ 0.05), and the data does not strongly support a reliability improvement."
+        """
