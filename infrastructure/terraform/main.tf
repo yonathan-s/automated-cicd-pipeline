@@ -21,13 +21,12 @@ provider "aws" {
   }
 }
 
-# Data sources
+#Data sources
 data "aws_caller_identity" "current" {}
 data "aws_availability_zones" "available" {
   state = "available"
 }
 
-# Networking Module
 module "networking" {
   source = "./modules/networking"
 
@@ -38,7 +37,7 @@ module "networking" {
   private_subnet_cidrs = var.private_subnet_cidrs
 }
 
-# Security Module
+
 module "security" {
   source = "./modules/security"
 
@@ -46,7 +45,6 @@ module "security" {
   environment = var.environment
 }
 
-# Compute Module
 module "compute" {
   source = "./modules/compute"
 

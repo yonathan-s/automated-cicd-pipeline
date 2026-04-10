@@ -1,8 +1,3 @@
-/**
- * DeploymentList Component
- * Shows recent deployments in a list format
- */
-
 import React from 'react';
 import { format } from 'date-fns';
 import './DeploymentList.css';

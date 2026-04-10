@@ -1,8 +1,3 @@
-/**
- * TimelineChart Component
- * Line chart showing deployment durations over time
- */
-
 import React from 'react';
 import { Line } from 'react-chartjs-2';
 import { format } from 'date-fns';
@@ -18,12 +13,11 @@ const TimelineChart = ({ deployments }) => {
     );
   }
 
-  // Sort by timestamp
   const sorted = [...deployments].sort((a, b) => 
     new Date(a.timestamp) - new Date(b.timestamp)
   );
 
-  // Separate manual and automated
+
   const manualDeployments = sorted.filter(d => d.deployment_type === 'manual');
   const automatedDeployments = sorted.filter(d => d.deployment_type === 'automated');
 

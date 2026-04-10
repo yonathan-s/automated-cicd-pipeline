@@ -1,8 +1,3 @@
-/**
- * Chart.js Configuration
- * Default settings and utilities for charts
- */
-
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -16,7 +11,6 @@ import {
   ArcElement,
 } from 'chart.js';
 
-// Register Chart.js components
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -29,7 +23,6 @@ ChartJS.register(
   Legend
 );
 
-// Default chart options
 export const defaultOptions = {
   responsive: true,
   maintainAspectRatio: false,
@@ -56,7 +49,6 @@ export const defaultOptions = {
   },
 };
 
-// Color schemes
 export const colors = {
   manual: {
     background: 'rgba(59, 130, 246, 0.5)',
@@ -76,7 +68,7 @@ export const colors = {
   },
 };
 
-// Format duration in seconds to readable string
+
 export const formatDuration = (seconds) => {
   if (seconds < 60) {
     return `${seconds}s`;

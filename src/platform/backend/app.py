@@ -11,7 +11,7 @@ from database import init_db, get_deployment_statistics
 from simulator import simulate_manual_deployment, simulate_multiple_deployments, get_simulation_summary
 
 
-from statistics import perform_full_analysis, calculate_descriptive_stats
+from statistics import perform_analysis, stats_with_description
 
 from metrics_queue import process_queued_deployments
 
@@ -45,8 +45,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 
 init_db(app)
-
-
 
 
 

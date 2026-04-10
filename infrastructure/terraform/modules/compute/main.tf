@@ -1,4 +1,3 @@
-# ECR Repository
 resource "aws_ecr_repository" "app" {
   name                 = "${var.environment}-task-manager-api"
   image_tag_mutability = "MUTABLE"
@@ -13,7 +12,6 @@ resource "aws_ecr_repository" "app" {
   }
 }
 
-# ECR Lifecycle Policy
 resource "aws_ecr_lifecycle_policy" "app" {
   repository = aws_ecr_repository.app.name
 
@@ -35,7 +33,6 @@ resource "aws_ecr_lifecycle_policy" "app" {
   })
 }
 
-# ECS Cluster
 resource "aws_ecs_cluster" "main" {
   name = "${var.environment}-task-manager-cluster"
 
@@ -49,7 +46,6 @@ resource "aws_ecs_cluster" "main" {
   }
 }
 
-# CloudWatch Log Group
 resource "aws_cloudwatch_log_group" "ecs" {
   name              = "/ecs/${var.environment}-task-manager"
   retention_in_days = 7
@@ -59,7 +55,7 @@ resource "aws_cloudwatch_log_group" "ecs" {
   }
 }
 
-# ECS Task Definition
+
 resource "aws_ecs_task_definition" "app" {
   family                   = "${var.environment}-task-manager-task"
   requires_compatibilities = ["FARGATE"]
@@ -105,7 +101,7 @@ resource "aws_ecs_task_definition" "app" {
   }
 }
 
-# Application Load Balancer
+
 resource "aws_lb" "main" {
   name               = "${var.environment}-task-manager-alb"
   internal           = false
@@ -118,7 +114,6 @@ resource "aws_lb" "main" {
   }
 }
 
-# Target Group
 resource "aws_lb_target_group" "app" {
   name        = "${var.environment}-task-manager-tg"
   port        = 5000
@@ -145,7 +140,6 @@ resource "aws_lb_target_group" "app" {
   }
 }
 
-# ALB Listener
 resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.main.arn
   port              = 80
@@ -157,7 +151,6 @@ resource "aws_lb_listener" "http" {
   }
 }
 
-# ECS Service
 resource "aws_ecs_service" "app" {
   name            = "${var.environment}-task-manager-service"
   cluster         = aws_ecs_cluster.main.id

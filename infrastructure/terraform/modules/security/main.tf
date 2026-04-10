@@ -1,4 +1,3 @@
-# ALB Security Group
 resource "aws_security_group" "alb" {
   name_prefix = "${var.environment}-alb-sg"
   description = "Security group for Application Load Balancer"
@@ -29,7 +28,7 @@ resource "aws_security_group" "alb" {
   }
 }
 
-# ECS Security Group
+
 resource "aws_security_group" "ecs" {
   name_prefix = "${var.environment}-ecs-sg"
   description = "Security group for ECS tasks"
@@ -60,7 +59,6 @@ resource "aws_security_group" "ecs" {
   }
 }
 
-# IAM Role for ECS Task Execution
 resource "aws_iam_role" "ecs_task_execution" {
   name = "${var.environment}-ecsTaskExecutionRole"
 
@@ -87,7 +85,6 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-# IAM Role for ECS Task
 resource "aws_iam_role" "ecs_task" {
   name = "${var.environment}-taskManagerTaskRole"
 

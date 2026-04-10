@@ -29,7 +29,6 @@ body {
   margin: 0 auto;
 }
 
-/* API Status */
 .api-status {
   background: white;
   padding: 0.75rem 1rem;
@@ -67,7 +66,6 @@ body {
   50% { opacity: 0.5; }
 }
 
-/* View Content */
 .view-content {
   background: white;
   border-radius: 12px;
@@ -100,7 +98,7 @@ body {
   margin-top: 1rem;
 }
 
-/* Footer */
+
 .footer {
   background: #1f2937;
   color: #9ca3af;
@@ -116,7 +114,6 @@ body {
   color: #10b981;
 }
 
-/* Loading and Error States */
 .loading {
   text-align: center;
   padding: 2rem;

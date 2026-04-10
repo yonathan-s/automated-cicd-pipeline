@@ -1,8 +1,3 @@
-/**
- * StatsCard Component
- * Displays a single statistic with icon and trend
- */
-
 import React from 'react';
 import './StatsCard.css';
 

@@ -1,8 +1,3 @@
-/**
- * Simulator Component
- * Interface for running manual deployment simulations
- */
-
 import React, { useState } from 'react';
 import {
   simulateManualDeployment,
@@ -30,7 +25,7 @@ const Simulator = () => {
         message: 'Manual deployment simulated successfully',
       });
       
-      // Refresh summary
+
       loadSummary();
     } catch (error) {
       setResult({
@@ -54,7 +49,7 @@ const Simulator = () => {
         message: `Simulated ${data.count} manual deployments`,
       });
       
-      // Refresh summary
+
       loadSummary();
     } catch (error) {
       setResult({
@@ -75,7 +70,7 @@ const Simulator = () => {
     }
   };
 
-  // Load summary on mount
+  //on mount
   React.useEffect(() => {
     loadSummary();
   }, []);
@@ -89,7 +84,7 @@ const Simulator = () => {
         </p>
       </div>
 
-      {/* Summary Stats */}
+
       {summary && summary.count > 0 && (
         <div className="simulation-summary">
           <h3>Simulation Summary</h3>
@@ -118,9 +113,7 @@ const Simulator = () => {
         </div>
       )}
 
-      {/* Simulator Controls */}
       <div className="simulator-controls">
-        {/* Single Simulation */}
         <div className="control-card">
           <h3>Single Simulation</h3>
           <p>Run one manual deployment simulation</p>
@@ -144,7 +137,7 @@ const Simulator = () => {
           </div>
         </div>
 
-        {/* Batch Simulation */}
+
         <div className="control-card">
           <h3>Batch Simulation</h3>
           <p>Run multiple simulations spread over time</p>
@@ -195,7 +188,7 @@ const Simulator = () => {
         </div>
       </div>
 
-      {/* Results */}
+
       {result && (
         <div className={`simulation-result ${result.type}`}>
           <h3>
@@ -235,7 +228,7 @@ const Simulator = () => {
         </div>
       )}
 
-      {/* Explanation */}
+
       <div className="simulator-explanation">
         <h3>📚 How the Simulator Works</h3>
         

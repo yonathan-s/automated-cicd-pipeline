@@ -1,10 +1,7 @@
-"""
-Configuration settings for the Flask application
-"""
+
 import os
 
 class Config:
-    """Base configuration"""
     
     # Application settings
     APP_NAME = os.getenv('APP_NAME', 'task-manager-api')
@@ -22,21 +19,17 @@ class Config:
     CORS_ORIGINS = os.getenv('CORS_ORIGINS', '*')
 
 class DevelopmentConfig(Config):
-    """Development configuration"""
     DEBUG = True
     TESTING = False
 
 class ProductionConfig(Config):
-    """Production configuration"""
     DEBUG = False
     TESTING = False
 
 class TestingConfig(Config):
-    """Testing configuration"""
     DEBUG = True
     TESTING = True
 
-# Configuration dictionary
 config = {
     'development': DevelopmentConfig,
     'production': ProductionConfig,

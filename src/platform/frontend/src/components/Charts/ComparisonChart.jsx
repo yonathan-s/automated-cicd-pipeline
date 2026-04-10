@@ -1,13 +1,9 @@
-/**
- * ComparisonChart Component
- * Bar chart comparing manual vs automated deployment durations
- */
-
 import React from 'react';
 import { Bar } from 'react-chartjs-2';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { defaultOptions, colors, formatDuration } from '../Charts/ChartConfig';
 import './ComparisonChart.css';
+
 
 const ComparisonChart = ({ statistics }) => {
   if (!statistics?.manual || !statistics?.automated) {

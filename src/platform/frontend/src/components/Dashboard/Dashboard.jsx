@@ -1,8 +1,3 @@
-/**
- * Dashboard Component
- * Main dashboard view showing overview and recent deployments
- */
-
 import React, { useState, useEffect } from 'react';
 import StatsCard from './StatsCard';
 import DeploymentList from './DeploymentList';
@@ -25,7 +20,7 @@ const Dashboard = () => {
     setError(null);
 
     try {
-      // Load all data in parallel
+
       const [summaryData, deploymentsData, statsData] = await Promise.all([
         getSummary(),
         getDeployments(null, 20),
@@ -64,7 +59,7 @@ const Dashboard = () => {
     );
   }
 
-  // Calculate improvement percentage
+  
   const getImprovementPercent = () => {
     if (statistics?.comparison?.time_improvement_percent) {
       return statistics.comparison.time_improvement_percent.toFixed(1);
@@ -81,7 +76,7 @@ const Dashboard = () => {
         </button>
       </div>
 
-      {/* Stats Grid */}
+      
       <div className="stats-grid">
         <StatsCard
           icon="D"
@@ -126,7 +121,7 @@ const Dashboard = () => {
         />
       </div>
 
-      {/* Comparison Summary */}
+
       {statistics?.comparison && (
         <div className="comparison-summary">
           <h3>📈 Quick Comparison</h3>
@@ -153,7 +148,7 @@ const Dashboard = () => {
         </div>
       )}
 
-      {/* Recent Deployments */}
+
       <div className="dashboard-section">
         <DeploymentList
           deployments={deployments}

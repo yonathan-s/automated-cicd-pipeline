@@ -1,10 +1,6 @@
-/**
- * Header Component
- * Top navigation bar for the platform
- */
-
 import React from 'react';
 import './Header.css';
+
 
 const Header = ({ currentView, onViewChange }) => {
   return (

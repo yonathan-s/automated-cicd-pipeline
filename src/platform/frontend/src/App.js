@@ -38,7 +38,7 @@ function App() {
             {apiStatus === 'disconnected' && 'Backend API Disconnected - Please start the backend server'}
           </div>
 
-          {/* View Content */}
+
           <div className="view-content">
             {currentView === 'dashboard' && <Dashboard />}
             
