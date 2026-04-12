@@ -37,6 +37,7 @@ export const defaultOptions = {
       },
     },
     tooltip: {
+      // Used claude AI for colour hex values
       backgroundColor: 'rgba(0, 0, 0, 0.8)',
       padding: 12,
       titleFont: {
@@ -49,6 +50,7 @@ export const defaultOptions = {
   },
 };
 
+//Used claude AI for colour hex values
 export const colors = {
   manual: {
     background: 'rgba(59, 130, 246, 0.5)',
@@ -70,12 +72,15 @@ export const colors = {
 
 
 export const formatDuration = (seconds) => {
+
   if (seconds < 60) {
     return `${seconds}s`;
+
   } else if (seconds < 3600) {
     const minutes = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${minutes}m ${secs}s`;
+
   } else {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);

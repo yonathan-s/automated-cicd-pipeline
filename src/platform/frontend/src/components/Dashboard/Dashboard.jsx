@@ -20,7 +20,7 @@ const Dashboard = () => {
     setError(null);
 
     try {
-
+      /*Added this with AI (claude) to wait for all 3 api calls to finish before moving on to next step*/
       const [summaryData, deploymentsData, statsData] = await Promise.all([
         getSummary(),
         getDeployments(null, 20),
@@ -47,6 +47,7 @@ const Dashboard = () => {
     );
   }
 
+  /*added for good practice*/
   if (error) {
     return (
       <div className="dashboard-error">

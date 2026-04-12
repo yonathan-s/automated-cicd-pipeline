@@ -1,3 +1,5 @@
+// AI (Claude) assisted with component structure, CSS class organisation, and layout separation
+
 import React, { useState } from 'react';
 import {
   simulateManualDeployment,
@@ -250,10 +252,10 @@ const Simulator = () => {
             Each simulation adds realistic human variance:
           </p>
           <ul>
-            <li>Duration varies by ±30 minutes (normal distribution)</li>
-            <li>Errors occur probabilistically at each step</li>
+            <li>Duration varies by ±30 minutes</li>
+            <li>Errors occur at each step witht the set probability</li>
             <li>Time lost per error: 5-30 minutes</li>
-            <li>Occasional complete failures (matching 75% success rate)</li>
+            <li>Occasional complete failures (matchies 75% success rate)</li>
           </ul>
         </div>
 

@@ -15,7 +15,6 @@ class Config:
     HOST = os.getenv('HOST', '0.0.0.0')
     PORT = int(os.getenv('PORT', 5000))
     
-    # CORS settings
     CORS_ORIGINS = os.getenv('CORS_ORIGINS', '*')
 
 class DevelopmentConfig(Config):

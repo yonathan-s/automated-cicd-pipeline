@@ -31,6 +31,7 @@ function App() {
       
       <main className="main-content">
         <div className="container">
+          {/*Made to always be visible and provide feedback to the user*/}
           <div className={`api-status ${apiStatus}`}>
             <span className="status-dot"></span>
             {apiStatus === 'checking' && 'Checking API connection...'}

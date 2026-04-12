@@ -1,11 +1,10 @@
-
-
 import React, { useState, useEffect } from 'react';
 import { getFullAnalysis, getDeployments } from '../../services/api';
 import ComparisonChart from '../Charts/ComparisonChart';
 import TimelineChart from './TimelineChart';
 import './StatisticalAnalysis.css';
 
+// Storde so I can re-use them often in the UI
 const STAT_EXPLANATIONS = {
   t_statistic: "How large the difference is relative to the variation in the data. The higher this number, the more confident we are a real difference exists.",
   p_value_t: "The probability that this result happened by chance.",
@@ -29,7 +28,8 @@ const StatisticalAnalysis = () => {
   const loadAnalysis = async () => {
     setLoading(true);
     setError(null);
-
+    // ai added this try block (claude)
+    // Promise.all to fetch deployments and analysis together, both are needed to render charts
     try {
       const [analysisData, deploymentsData] = await Promise.all([
         getFullAnalysis(),
@@ -38,6 +38,7 @@ const StatisticalAnalysis = () => {
 
       setAnalysis(analysisData);
       setDeployments(deploymentsData.deployments || []);
+
     } catch (err) {
       console.error('Error loading analysis:', err);
       setError('Failed to load statistical analysis');
@@ -58,7 +59,7 @@ const StatisticalAnalysis = () => {
   if (error) {
     return (
       <div className="statistics-error">
-        <h3>⚠️ Error</h3>
+        <h3>❌ Error</h3>
         <p>{error}</p>
         <button onClick={loadAnalysis} className="retry-button">
           Retry
@@ -67,6 +68,7 @@ const StatisticalAnalysis = () => {
     );
   }
 
+  //Destructure the analysis results for easier access in the UI
   const { descriptive_statistics, inferential_statistics, improvement_metrics } = analysis;
 
   return (
@@ -95,6 +97,7 @@ const StatisticalAnalysis = () => {
                   <span className="stat-label">Count:</span>
                   <span className="stat-value">{descriptive_statistics.manual.count}</span>
                 </div>
+                {/* converted the following to hours and minutes for readability */}
                 <div className="stat-row">
                   <span className="stat-label">Mean Duration:</span>
                   <span className="stat-value">
@@ -133,6 +136,7 @@ const StatisticalAnalysis = () => {
                   <span className="stat-label">Count:</span>
                   <span className="stat-value">{descriptive_statistics.automated.count}</span>
                 </div>
+                {/* converted the following to hours and minutes for readability */}
                 <div className="stat-row">
                   <span className="stat-label">Mean Duration:</span>
                   <span className="stat-value">
@@ -212,6 +216,7 @@ const StatisticalAnalysis = () => {
                 <div className="test-row">
                   <span className="test-label">x^2 statistic: {STAT_EXPLANATIONS.chi_square}</span>
                   <span className="test-value">
+                    {/* error handling added as a precaution through, (vscode co-pilot done it)*/}
                     {typeof inferential_statistics.chi_square.chi_square === 'number'
                       ? inferential_statistics.chi_square.chi_square.toFixed(4)
                       : inferential_statistics.chi_square.chi_square}

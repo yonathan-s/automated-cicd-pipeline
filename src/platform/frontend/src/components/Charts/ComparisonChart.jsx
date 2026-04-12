@@ -82,6 +82,7 @@ const ComparisonChart = ({ statistics }) => {
         },
       },
     },
+    
     plugins: {
       ...defaultOptions.plugins,
       legend: {

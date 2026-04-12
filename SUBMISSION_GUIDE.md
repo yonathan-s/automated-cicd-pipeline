@@ -5,13 +5,12 @@ This file explains how to run the main parts of the submitted codebase.
 ## 1. Main Project Components
 
 ### A. Demo Web Application
+
 Folder:
-```text
 src/webapp
-```
+
 
 Purpose:
-
 deployable target application for the CI/CD pipeline
 
 ### B. Deployment Metrics Platform Backend
@@ -124,11 +123,13 @@ Terraform files are located in:
 cd infrastructure/terraform
 
 Typical commands:
-
+```bash
 terraform init
 terraform validate
 terraform plan
-
+terraform apply
+terraform destroy
+```
 ### Note:
 
 Cloud deployment requires valid AWS credentials

@@ -95,8 +95,8 @@ Pipeline will fail if any test fails, preventing bad code from being deployed.
 
 ## Future Improvements
 
-- [ ] Integration tests with actual HTTP requests
-- [ ] Load testing
-- [ ] Security testing
-- [ ] Database integration tests (when database is added)
-- [ ] End-to-end tests with Selenium
+- Integration tests with actual HTTP requests
+- Load testing
+- Security testing
+- Database integration tests (when database is added)
+- End to end tests with Selenium

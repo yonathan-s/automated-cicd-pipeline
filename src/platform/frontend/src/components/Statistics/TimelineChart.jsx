@@ -21,11 +21,13 @@ const TimelineChart = ({ deployments }) => {
   const manualDeployments = sorted.filter(d => d.deployment_type === 'manual');
   const automatedDeployments = sorted.filter(d => d.deployment_type === 'automated');
 
+  // AI (Claude) assisted with the chart data structure and dataset configuration
   const data = {
     labels: sorted.map(d => format(new Date(d.timestamp), 'MMM d, HH:mm')),
     datasets: [
       {
         label: 'Manual Deployments',
+        // added null to keep the point off the chart without breaking the line for the other dataset
         data: sorted.map(d => 
           d.deployment_type === 'manual' ? d.duration_seconds / 60 : null
         ),

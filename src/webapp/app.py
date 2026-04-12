@@ -14,6 +14,7 @@ app.config.from_object(config[env])
 CORS(app, origins=app.config['CORS_ORIGINS'])
 
 
+# adds log timestamp and which module it came from
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -191,6 +192,8 @@ def get_stats():
     }), 200
 
 
+
+# The following error handlers were added by claude AI
 @app.errorhandler(404)
 def not_found(error):
     logger.error(f'404 error: {request.url}')
@@ -215,7 +218,7 @@ def bad_request(error):
         'message': str(error)
     }), 400
 
-
+# End of AI added error handlers
 
 if __name__ == '__main__':
     logger.info(f'Starting {app.config["APP_NAME"]} v{app.config["APP_VERSION"]}')

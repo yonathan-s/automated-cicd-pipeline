@@ -7,7 +7,7 @@ This project implements and evaluates an automated CI/CD deployment pipeline for
 This project contains three main outputs:
 
 1. **Demo web application**  
-   A Flask task manager application used as a controlled deployment target.
+   A Flask task manager application used as the demo deployment webapp to prove the pipeline
 
 2. **Automated CI/CD deployment pipeline**  
    A GitHub Actions + Docker + Terraform + AWS deployment workflow.
@@ -51,14 +51,14 @@ This project contains three main outputs:
 
 ```text
 .
-├── .github/workflows/              # GitHub Actions workflows
-├── docs/                           # Supporting documentation and screenshots of manual deployment and build stage
-├── infrastructure/terraform/       # Terraform IaC
-├── src/webapp/                     # Demo deployable web application
-├── src/platform/backend/           # Metrics platform backend API
-├── src/platform/frontend/          # Metrics platform frontend UI
-├── src/platform/start-platform.ps1 # Backend startup helper
-└── SUBMISSION_GUIDE.md             # Marker-friendly run guide
+.github/workflows/              # GitHub Actions workflows
+docs/                           # Supporting documentation and screenshots of manual deployment and build stage
+infrastructure/terraform/       # Terraform IaC
+src/webapp/                     # Demo deployable web application
+src/platform/backend/           # Metrics platform backend API
+src/platform/frontend/          # Metrics platform frontend UI
+src/platform/start-platform.ps1 # Backend startup helper
+SUBMISSION_GUIDE.md             # Markers run guide
 
 ```
 
@@ -108,6 +108,7 @@ Detailed instructions are in SUBMISSION_GUIDE.md.
 ```bash 
 cd src/webapp
 python -m venv venv
+source venv/Scripts/activate  
 pip install -r requirements.txt
 python app.py
 ```
