@@ -8,7 +8,7 @@ resource "aws_security_group" "alb" {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["0.0.0.0/0"]  #Made it so that ALB is the only resource that access traffic from internet
   }
 
   egress {
@@ -16,7 +16,7 @@ resource "aws_security_group" "alb" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["0.0.0.0/0"]  # ALB needs to forward traffic to ECS tasks on any port
   }
 
   tags = {
@@ -24,7 +24,7 @@ resource "aws_security_group" "alb" {
   }
 
   lifecycle {
-    create_before_destroy = true
+    create_before_destroy = true  #Prevents downtime if security group needs to be replaced
   }
 }
 
@@ -39,7 +39,7 @@ resource "aws_security_group" "ecs" {
     from_port       = 5000
     to_port         = 5000
     protocol        = "tcp"
-    security_groups = [aws_security_group.alb.id]
+    security_groups = [aws_security_group.alb.id]  # only the ALB can send traffic to the tasks, not the open internet
   }
 
   egress {
@@ -47,7 +47,7 @@ resource "aws_security_group" "ecs" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["0.0.0.0/0"]  # Tasks need access to pull container images and send logs to cloudwatcg
   }
 
   tags = {
@@ -69,7 +69,7 @@ resource "aws_iam_role" "ecs_task_execution" {
         Action = "sts:AssumeRole"
         Effect = "Allow"
         Principal = {
-          Service = "ecs-tasks.amazonaws.com"
+          Service = "ecs-tasks.amazonaws.com"  # only ECS tasks can assume this role, not other AWS services
         }
       }
     ]
@@ -82,7 +82,7 @@ resource "aws_iam_role" "ecs_task_execution" {
 
 resource "aws_iam_role_policy_attachment" "ecs_task_execution" {
   role       = aws_iam_role.ecs_task_execution.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"  # write permissions for ECR and logs
 }
 
 resource "aws_iam_role" "ecs_task" {

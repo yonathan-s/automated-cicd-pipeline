@@ -20,7 +20,7 @@ Manual Push to ECR → Manual ECS Update → Manual Verification → Production
 
 **Time estimate:** 20-30 minutes per deployment
 
----
+
 
 ### Automated CI/CD Flow
 ```
@@ -45,7 +45,7 @@ CloudWatch Monitoring -> Production
 
 **Time estimate:** 5-8 minutes per deployment (automated)
 
----
+
 
 ## AWS Infrastructure Components
 
@@ -107,24 +107,6 @@ Docker Build → ECR → Terraform (if infra changes) →
 ECS Deployment → CloudWatch Logs
 ```
 
----
-
-## Technology Integration Map
-
-| Layer | Technology | Purpose |
-|-------|-----------|---------|
-| Source Control | GitHub | Code repository, pipeline trigger |
-| CI/CD | GitHub Actions | Automation orchestration |
-| Application | Python Flask | Web application logic |
-| Containerization | Docker | Application packaging |
-| Registry | AWS ECR | Container image storage |
-| Infrastructure | Terraform | IaC for AWS resources |
-| Orchestration | AWS ECS Fargate | Container deployment |
-| Networking | AWS VPC, ALB | Traffic routing |
-| Monitoring | AWS CloudWatch | Logs, metrics, alarms |
-| Security | Trivy, IAM | Scanning, access control |
-
----
 
 ## Security Architecture
 
@@ -143,7 +125,7 @@ ECS Deployment → CloudWatch Logs
 - Non-root user in container
 - Read-only root filesystem (where possible)
 
----
+
 
 ## Scalability Considerations
 
@@ -158,7 +140,7 @@ ECS Deployment → CloudWatch Logs
 - Database integration
 - CDN for static content
 
----
+
 
 ## Diagram 
 ![alt text](image-2.png)

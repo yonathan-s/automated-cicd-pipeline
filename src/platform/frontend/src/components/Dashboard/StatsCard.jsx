@@ -19,7 +19,7 @@ const StatsCard = ({ title, value, subtitle, icon, trend, color = 'blue' }) => {
         {trend && (
           <div className={`stats-card-trend ${trend.type}`}>
             <span className="trend-icon">
-              {trend.type === 'up' ? '↑' : trend.type === 'down' ? '↓' : '→'}
+              {trend.type === 'up' ? '⬆️⬆' : trend.type === 'down' ? '⬇️⬇' : '➡️'}
             </span>
             <span className="trend-text">{trend.text}</span>
           </div>

@@ -173,7 +173,6 @@ def get_stats():
     
     stats = get_deployment_statistics()
     
-    # calculate comparisons here
     comparison = None
 
     if stats['manual'] and stats['automated']:

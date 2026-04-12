@@ -1,6 +1,6 @@
 resource "aws_vpc" "main" {
   cidr_block           = var.vpc_cidr
-  enable_dns_hostnames = true
+  enable_dns_hostnames = true  # Needed so ECS tasks can resolve ECR endpoint hostnames
   enable_dns_support   = true
 
   tags = {
@@ -21,7 +21,7 @@ resource "aws_subnet" "public" {
 
   vpc_id                  = aws_vpc.main.id
   cidr_block              = var.public_subnet_cidrs[count.index]
-  availability_zone       = var.availability_zones[count.index]
+  availability_zone       = var.availability_zones[count.index]  
   map_public_ip_on_launch = true
 
   tags = {
@@ -35,7 +35,7 @@ resource "aws_subnet" "private" {
 
   vpc_id            = aws_vpc.main.id
   cidr_block        = var.private_subnet_cidrs[count.index]
-  availability_zone = var.availability_zones[count.index]
+  availability_zone = var.availability_zones[count.index]  
 
   tags = {
     Name = "${var.environment}-private-subnet-${count.index + 1}"
@@ -44,18 +44,18 @@ resource "aws_subnet" "private" {
 }
 
 resource "aws_eip" "nat" {
-  domain = "vpc"
+  domain = "vpc"  # Elastic IP so the NAT gateway always has the same outbound address
 
   tags = {
     Name = "${var.environment}-nat-eip"
   }
 
-  depends_on = [aws_internet_gateway.main]
+  depends_on = [aws_internet_gateway.main]  # IGW must exist before seeting EIP
 }
 
 resource "aws_nat_gateway" "main" {
   allocation_id = aws_eip.nat.id
-  subnet_id     = aws_subnet.public[0].id
+  subnet_id     = aws_subnet.public[0].id  # NAT gateway has to go in public subnet, routes traffic from private subnet.
 
   tags = {
     Name = "${var.environment}-nat"
@@ -69,7 +69,7 @@ resource "aws_route_table" "public" {
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.main.id
+    gateway_id = aws_internet_gateway.main.id  
   }
 
   tags = {
@@ -89,7 +89,8 @@ resource "aws_route_table" "private" {
 
   route {
     cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.main.id
+    nat_gateway_id = aws_nat_gateway.main.id  #not directly to internet
+    # This is because if it went directly to the internet anyone who knows the task's IP could skip the ALB and we don't want that
   }
 
   tags = {

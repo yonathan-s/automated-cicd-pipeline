@@ -1,12 +1,11 @@
-"""Start of AI code generation"""
 # This module provides a simple file-based queue for deployment metrics.
-# When a deployment is completed, its metrics are saved as a JSON file in the 'queued_metrics' directory.
-# A separate process can periodically call 'process_queued_deployments' to read these files
+
 import json
 import os
 from datetime import datetime
 from pathlib import Path
 
+"""Start of AI code generation"""
 # Define the directory where queued deployment files will be stored
 QUEUE_DIR = Path(__file__).parent / 'queued_metrics'
 

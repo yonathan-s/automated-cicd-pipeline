@@ -38,7 +38,7 @@ Think of it like a delivery truck:
 - **Task Execution Role:** The truck company's credentials to pick up packages (ECR images) and deliver them (start containers)
 - **Task Role:** The driver's credentials to interact with customers (my app interacting with AWS services)
 
-## Manual Setup Complexity
+## Manual Setup #
 
 Manual IAM setup required:
 1. Understanding the trust relationship (who can assume the role)

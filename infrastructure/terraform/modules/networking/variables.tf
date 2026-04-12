@@ -9,7 +9,7 @@ variable "environment" {
 }
 
 variable "availability_zones" {
-  description = "List of availability zones"
+  description = "Availlibility zones list"
   type        = list(string)
 }
 

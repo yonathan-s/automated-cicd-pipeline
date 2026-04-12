@@ -112,49 +112,6 @@ GitHub Actions uses dedicated IAM user with minimal permissions:
 - Application logs
 - Deployment events
 
-## Comparison to Manual Process
-
-| Aspect | Manual | CI/CD |
-|--------|--------|-------|
-| Trigger | Human decides to deploy | Automatic on git push |
-| Build | Local machine | GitHub runners |
-| Tests | Maybe run locally | Always run |
-| Security scan | Manual, if remembered | Automatic, every time |
-| Push to ECR | Manual commands | Automatic |
-| Deploy to ECS | AWS Console or CLI | Automatic |
-| Validation | Manual testing | Automated health checks |
-| Rollback | Manual, slow | Automatic, fast |
-| Logs | Scattered | Centralized |
-| Time | 30+ minutes | 8-10 minutes |
-
-## Troubleshooting
-
-### Deployment Fails at Build Stage
-- Check Dockerfile syntax
-- Verify all dependencies in requirements.txt
-- Check GitHub Actions logs for specific error
-
-### Deployment Fails at Test Stage
-- Review test output in workflow logs
-- Run tests locally to debug
-- Check if tests need updated dependencies
-
-### Deployment Fails at Security Scan
-- Review Trivy findings
-- Update base image if vulnerabilities in OS packages
-- Update Python packages if vulnerabilities in libraries
-
-### Deployment Fails at Validation
-- Check ECS task logs in CloudWatch
-- Verify application starts correctly
-- Check security groups allow ALB → ECS traffic
-- Verify health endpoint returns 200
-
-### Rollback Triggered
-- Check which stage failed
-- Review error messages
-- Fix issue
-- Push new commit (triggers new deployment)
 
 ## Future Enhancements
 
