@@ -2,6 +2,8 @@
 
 This project implements and evaluates an automated CI/CD deployment pipeline for containerised web applications on AWS. It also includes a custom deployment metrics platform used to analyse deployment performance and compare automated deployment against a manual deployment baseline.
 
+This is a readme file with a submission guide for markers located halfway down this file
+
 ## Project Outputs
 
 This project contains three main outputs:
@@ -57,7 +59,7 @@ infrastructure/terraform/       # Terraform IaC
 src/webapp/                     # Demo deployable web application
 src/platform/backend/           # Metrics platform backend API
 src/platform/frontend/          # Metrics platform frontend UI
-src/platform/start-platform.ps1 # Backend startup helper
+src/platform/start-platform.ps1 # Windows PowerShell script that starts the platform backend. Alternative way to running manually
 SUBMISSION_GUIDE.md             # Markers run guide
 
 ```
@@ -132,7 +134,15 @@ The code submission is intended to document and reproduce the implemented system
 
 
 
-# Submission Guide
+
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+# Submission Guide for markers
 
 This part explains how to run the main parts of the submitted codebase.
 
@@ -178,7 +188,9 @@ Purpose:
 
 provisions AWS infrastructure
 
-## 2. Run the Demo Web Application (If and once deployed)
+## 2. Run the Demo Web Application 
+
+Python 3.10 or above recommended. If python doesn't work, try python3
 
 Open a terminal in src/webapp:
 
@@ -211,6 +223,8 @@ pytest tests/test_app.py -v
 
 ## 3. Run the Platform Backend
 
+Python 3.10 or above recommended. If python doesn't work, try python3
+
 Open a terminal in src/platform/backend:
 
 ```bash
@@ -218,7 +232,7 @@ cd src/platform/backend
 python -m venv venv
 
 # Activate the virtual environment and install dependencies:
-venv/Scripts/activate  
+./venv/Scripts/activate  
 
 pip install -r requirements.txt
 
