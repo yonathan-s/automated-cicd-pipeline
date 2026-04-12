@@ -12,7 +12,7 @@ from simulator import simulate_manual_deployment, simulate_multiple_deployments,
 
 
 from statistics import perform_analysis, stats_with_description
-
+#unused for now:
 from metrics_queue import process_queued_deployments
 
 class NumpyJSONProvider(DefaultJSONProvider):
@@ -228,10 +228,11 @@ def get_full_analysis():
     analysis = perform_full_analysis()
     return jsonify(analysis)
 
-@app.route('/api/queue/process', methods=['POST'])
-def process_queue():
-    result = process_queued_deployments()
-    return jsonify(result)
+# This function is not used since metrics aren't automatically t anymore being sent
+# @app.route('/api/queue/process', methods=['POST'])
+#def process_queue():
+#    result = process_queued_deployments()
+#    return jsonify(result)
 
 
 

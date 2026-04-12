@@ -13,7 +13,7 @@ This project contains three main outputs:
    A GitHub Actions + Docker + Terraform + AWS deployment workflow.
 
 3. **Deployment metrics platform**  
-   A Flask + React platform for collecting, visualising, and statistically analysing deployment metrics.
+   A Flask + React platform for collecting, visualising, and statistically analysing deployment metrics of my Automated CI/CD deployment pipeline
 
 ## Technology Stack
 
@@ -89,6 +89,30 @@ This contains the CI/CD workflow that:
 - Redeploys the ECS service
 - Sends deployment metrics to the metrics platform (This has not been implemented yet. For now all automated deployment metrics are manually inputted to the platform)
 
+### src/platform
+
+The metrics platform is a separate full-stack application built to measure and evaluate the CI/CD pipeline. It has two parts: a Flask backend API and a React frontend dashboard.
+
+**What it does:**
+
+The platform collects deployment records and uses them to statistically compare automated deployments against a manual deployment baseline. It produces:
+
+- A dashboard showing deployment history, success rates, and timing
+- Descriptive statistics (mean duration, standard deviation, error counts) for both deployment types
+-Includes an independent samples t-test on deployment duration, a chi-square test on success rates, and Cohen's d effect size
+- A simulator that generates realistic manual deployment data based on a real manual deployment I conducted, used to produce a large enough dataset for statistical analysis
+
+**How it works:**
+
+The backend (Flask + SQLAlchemy + SQLite) exposes a REST API for storing deployment records, running statistical calculations using NumPy and SciPy, and serving simulation results. The frontend (React + Chart.js) fetches data from the backend and displays it across three views: Dashboard, Statistical Analysis, and Simulator.
+
+**Limitations:**
+
+- The platform uses a local SQLite database, so data does not persist between fresh installs
+- The manual deployment data is simulated based on a single real deployment, not repeated real measurements
+- The GitHub Actions workflow does not automatically send metrics to the platform — automated deployment records were manually entered
+- The platform is not deployed and requires both the backend and frontend to be running locally to function
+
 ### src/platform/backend
 
 This is the backend API for the deployment metrics platform.
@@ -99,48 +123,6 @@ This is the backend API for the deployment metrics platform.
 This is the React dashboard for visualising deployment data and statistical analysis.
 
 
-## Local Run Summary
-
-Detailed instructions are in SUBMISSION_GUIDE.md.
-
-
-### Demo web app
-```bash 
-cd src/webapp
-python -m venv venv
-source venv/Scripts/activate  
-pip install -r requirements.txt
-python app.py
-```
-
-### Platform backend
-```bash 
-cd src/platform/backend
-python -m venv venv
-pip install -r requirements.txt
-python app.py
-```
-
-### Platform frontend
-```bash 
-cd src/platform/frontend
-npm install
-npm start
-```
-### Terraform Notes
-Terraform commands are run from 
-```bash 
-cd infrastructure/terraform 
-```
-
-Typical commands:
-
-```bash
-terraform init
-terraform validate
-terraform plan
-```
-
 ## Important Submission Notes
 The metrics platform frontend expects a backend API URL.
 
@@ -148,8 +130,165 @@ Some cloud deployment features require AWS credentials and GitHub secrets, which
 
 The code submission is intended to document and reproduce the implemented system as far as possible without exposing secrets.
 
-## Final Submission
 
-For marker guidance, use:
 
-SUBMISSION_GUIDE.md
+# Submission Guide
+
+This part explains how to run the main parts of the submitted codebase.
+
+## 1. Main Project Components
+
+### A. Demo Web Application
+
+Folder:
+src/webapp
+
+
+Purpose:
+deployable target application for the CI/CD pipeline
+
+### B. Deployment Metrics Platform Backend
+
+Folder:
+
+src/platform/backend
+
+Purpose:
+
+receives and stores deployment records
+performs statistics and comparison analysis
+
+### C. Deployment Metrics Platform Frontend
+
+Folder:
+
+src/platform/frontend
+
+Purpose:
+
+displays dashboard, deployment history, and analysis charts
+
+### D. Infrastructure as Code
+
+Folder:
+
+infrastructure/terraform
+
+Purpose:
+
+provisions AWS infrastructure
+
+## 2. Run the Demo Web Application (If and once deployed)
+
+Open a terminal in src/webapp:
+
+```bash
+cd src/webapp
+python -m venv venv
+
+# Activate the virtual environment.
+
+# Windows PowerShell
+.\venv\Scripts\Activate.ps1
+
+# macOS/Linux
+source venv/bin/activate
+
+# Install dependencies:
+
+pip install -r requirements.txt
+
+# Run the application:
+
+python app.py
+
+# Open: http://localhost:5000 and http://localhost:5000/health
+
+# Run tests:
+
+pytest tests/test_app.py -v
+```
+
+## 3. Run the Platform Backend
+
+Open a terminal in src/platform/backend:
+
+```bash
+cd src/platform/backend
+python -m venv venv
+
+# Activate the virtual environment and install dependencies:
+venv/Scripts/activate  
+
+pip install -r requirements.txt
+
+# Run backend:
+
+python app.py
+
+# Backend runs on: http://localhost:5001
+
+# Health endpoint: http://localhost:5001/api/health
+```
+
+## 4. Run the Platform Frontend
+
+Open a terminal in src/platform/frontend:
+
+```bash
+cd src/platform/frontend
+npm install
+
+# Create .env from the example if required:
+
+copy .env.example .env
+
+# Start the frontend:
+
+npm start
+
+# Frontend runs on: http://localhost:3000
+
+```
+
+## 5. Terraform
+
+Terraform files are located in:
+
+cd infrastructure/terraform
+
+Typical commands:
+```bash
+terraform init      # downloads required providers and sets up the working directory
+terraform validate  # checks the configuration files for syntax errors
+terraform plan      # previews what changes will be made before applying
+terraform apply     # provisions the infrastructure on AWS (requires valid AWS credentials)
+terraform destroy   # tears down all provisioned infrastructure
+```
+### Note:
+
+Cloud deployment requires valid AWS credentials
+Secrets are not included in the code submission
+
+## 6. GitHub Actions Note
+
+The workflow file is:
+
+.github/workflows/deploy.yml
+
+It expects GitHub secrets for AWS credentials and for the metrics platform URL.
+
+Because secrets are not included in the submission, the workflow is documented but not fully executable by default.
+
+Although the workflow contains prototype support for metrics submission, the automated deployment records used in the final platform evaluation were manually entered based on GitHub Actions run results.
+
+## 7. Important Limitation Notes
+The demo application uses in-memory task storage only.
+The metrics platform frontend requires the backend to be running.
+The cloud deployment workflow requires AWS credentials and GitHub secrets.
+The platform contains both real deployment data handling and manually simulated comparison data.
+The workflow uses manually inputted and seeded data rather than sending the metrics straight to the platform
+
+## Author
+
+Yonathan Surafel — BSc Computer Science, City St George's, University of London

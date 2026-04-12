@@ -1,10 +1,12 @@
-# This module provides a simple file-based queue for deployment metrics.
+# This is a prototype in case I add automatic sending of metrics to my backend platform 
+# provides a simple file-based queue for deployment metrics.
 
 import json
 import os
 from datetime import datetime
 from pathlib import Path
 
+#AI was used to generate a large part of this file
 """Start of AI code generation"""
 # Define the directory where queued deployment files will be stored
 QUEUE_DIR = Path(__file__).parent / 'queued_metrics'

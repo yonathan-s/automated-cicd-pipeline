@@ -7,7 +7,7 @@ def stats_with_description(deployments):
     successful_deployments = [d for d in deployments if d.status == 'success']
     success_count = len(successful_deployments)
 
-    #all deployments still count for to coount metrics for reliability + errors rates
+    # All deployments still count for to coount metrics for reliability + errors rates
     total_count = len(deployments)
     errors = [d.errors_count for d in deployments]
 
@@ -87,9 +87,8 @@ def chi_square_tests(manual_deployments, automated_deployments):
     auto_success = sum(1 for d in automated_deployments if d.status == 'success')
     auto_failure = len(automated_deployments) - auto_success
     
-    A = np.array([manual_success, auto_success])
     
-    # will do for now but come back to
+    #come back to
     chi2, p_value = stats.chisquare(A)
     significant = p_value < 0.05
     
@@ -103,6 +102,36 @@ def chi_square_tests(manual_deployments, automated_deployments):
     }
 
 """
+
+#
+def chi_square_tests(manual_deployments, automated_deployments):
+    manual_success = sum(1 for d in manual_deployments if d.status == 'success')
+    manual_failure = len(manual_deployments) - manual_success
+
+    auto_success = sum(1 for d in automated_deployments if d.status == 'success')
+    auto_failure = len(automated_deployments) - auto_success
+
+    # 2x2 contingency table
+    # Array was generated with GPT
+    """Start of generated code"""
+    contingency_table = np.array([
+        [manual_success, manual_failure],
+        [auto_success, auto_failure]
+    ])
+
+    # Performed by GPT:
+    chi2, p_value, dof, expected = stats.chi2_contingency(contingency_table)
+    """End of generated code"""
+    significant = p_value < 0.05
+
+    return {
+        'chi_square': float(chi2),
+        'p_value': float(p_value),
+        'significant': significant,
+        'manual_success_rate': (manual_success / len(manual_deployments)) * 100,
+        'automated_success_rate': (auto_success / len(automated_deployments)) * 100,
+        'interpretation': get_chi_square_interpretation(significant)
+    }
 
 #gives me a range of plausible deployment times based on my sample data (confidence level)
 def clevel(deployments, confidence=0.95):
@@ -145,15 +174,8 @@ def perform_analysis():
     t_tests = t_test(manual_deployments, automated_deployments)
 
     # Provide values when done
-    chi_square_results = {
-        'chi_square': 'N/A',
-        'p_value': 'N/A',
-        'degrees_of_freedom': 'N/A',
-        'significant': False,
-        'manual_success_rate': 'N/A',
-        'automated_success_rate': 'N/A',
-        'interpretation': 'N/A'
-    }
+    chi_square_results = chi_square_tests(manual_deployments, automated_deployments)
+    
     manual_ci = clevel(manual_deployments)
     automated_ci = clevel(automated_deployments)
     return {
@@ -193,10 +215,9 @@ def get_t_test_interpretation(significant, cohens_d):
         return "No significant speed differences was found between automated and manual deployments. The difference could be due to chance (p ≥ 0.05), meaning the sample data does not strongly support a consistent time improvement."
 
 
-#ncomment when chi-square tests are done properly
-"""def get_chi_square_interpretation(significant):
+
+def get_chi_square_interpretation(significant):
     if significant:
         return "Automated and mannual deployments differ significantly in their success rates. Unlikely to be due to chance (p < 0.05)"
     else:
-        return "No significant difference in success rates was found between automated and manual deployment. The observed difference could be due to chance (p ≥ 0.05), and the data does not strongly support a reliability improvement."
-        """
+        return "No significant difference in success rates was found between automated and manual deployment."

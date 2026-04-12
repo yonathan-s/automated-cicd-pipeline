@@ -1,5 +1,5 @@
-
-
+# Although prototype support for automatic metrics submission exists in the codebase, the deployment records used in the final evaluation were manually entered into the platform based on observed GitHub Actions deployment results.
+# The metrics are still recorded in the GitHub Actions logs and the code for sending them to the platform is present but commented out in the workflow file below, as I was not able to get it working before the submission deadline. The deployment summary step was added to ensure that key deployment information is still visible in the logs for evaluation purposes, even without the metrics platform integration.
 name: Deploy to AWS
 
 on:
@@ -20,6 +20,7 @@ env:
   ECS_CLUSTER: dev-task-manager-cluster
   ECS_SERVICE: dev-task-manager-service
   CONTAINER_NAME: task-manager-container
+  # Not implemented so not used:
   METRICS_PLATFORM_URL: ${{ secrets.METRICS_PLATFORM_URL }}
 
 
@@ -231,48 +232,41 @@ jobs:
 
       
       # continues on error if platform is offline
-      - name: Send metrics to platform
-        if: always()
-        continue-on-error: true
-        run: |
-          END_TIME=$(date +%s)
-          START_TIME=${{ steps.start-time.outputs.start_time }}
-          DURATION=$((END_TIME - START_TIME))
+      #- name: Send metrics to platform
+      #  #i: always()
+      #  continue-on-error: true
+      #  run: |
+      #    END_TIME=$(date +%s)
+      #    START_TIME=${ steps.start-time.outputs.start_time }}
+      #    DURATION=$((END_TIME - START_TIME))
           
-          TESTS_PASSED="true"
-          TESTS_FAILED=0
+      #    TESTS_PASSED="true"
+      #    TESTS_FAILED=0
           
-          SECURITY_PASSED="true"
-          SECURITY_VULNS=0
+      #    SECURITY_PASSED="true"
+      #    SECURITY_VULNS=0
           
-          if [ "${{ job.status }}" = "success" ]; then
-            STATUS="success"
-          else
-            STATUS="failed"
-          fi
+      #    if [ "${ job.status }}" = "success" ]; then
+      #      STATUS="success"
+      #    else
+      #      STATUS="failed"
+      #    fi
           
-          echo "Sending deployment metrics to platform..."
-          echo "Duration: ${DURATION}s"
-          echo "Status: ${STATUS}"
+      #    echo "Sending deployment metrics to platform..."
+      #    echo "Duration: ${DURATION}s"
+      #    echo "Status: ${STATUS}"
           
-          curl -X POST ${{ env.METRICS_PLATFORM_URL }}/api/deployments \
-            -H "Content-Type: application/json" \
-            -d '{
-              "deployment_type": "automated",
-              "commit_sha": "${{ github.sha }}",
-              "duration_seconds": '"$DURATION"',
-              "status": "'"$STATUS"'",
-              "timestamp": "'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'",
-              "triggered_by": "${{ github.actor }}",
-              "tests_passed": '"$TESTS_PASSED"',
-              "tests_total": 3,
-              "tests_failed": '"$TESTS_FAILED"',
-              "security_scan_passed": '"$SECURITY_PASSED"',
-              "security_vulnerabilities": '"$SECURITY_VULNS"',
-              "errors_count": 0
-            }' || echo "Failed to send metrics (platform may not be running)"
+      #    curl -X POST ${ env.METRICS_PLATFORM_URL }}/api/deployments \
+      #      -H "Content-Type: application/json" \
+       #     -d '{
+       #       "deployment_type": "automated",
+      #        "commit_sha": "${ github.sha }}",
+      #        "duration_seconds": '"$DURATION"',
+      #        "status": "'"$STATUS"'",
+       #       "timestamp": "'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'",
+      #      }' || echo "Failed to send metrics (platform may not be running)"
           
-          echo "Metrics sent (or skipped if platform offline)"
+      #    echo "Metrics sent (or skipped if platform offline)"
 
   #not working
   #rollback:

@@ -4,7 +4,7 @@ import ComparisonChart from '../Charts/ComparisonChart';
 import TimelineChart from './TimelineChart';
 import './StatisticalAnalysis.css';
 
-// Storde so I can re-use them often in the UI
+// Stored so I can re-use them often in the UI
 const STAT_EXPLANATIONS = {
   t_statistic: "How large the difference is relative to the variation in the data. The higher this number, the more confident we are a real difference exists.",
   p_value_t: "The probability that this result happened by chance.",
