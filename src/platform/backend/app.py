@@ -224,9 +224,10 @@ def get_summary():
 
 @app.route('/api/analysis/full', methods=['GET'])
 def get_full_analysis():
-    
-    analysis = perform_full_analysis()
-    return jsonify(analysis)
+    result = perform_analysis()
+    # frontend expects 'inferential_statistics' not 'improved_statistics'
+    result['inferential_statistics'] = result.pop('improved_statistics')
+    return jsonify(result)
 
 # This function is not used since metrics aren't automatically t anymore being sent
 # @app.route('/api/queue/process', methods=['POST'])
