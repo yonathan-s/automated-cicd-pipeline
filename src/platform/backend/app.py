@@ -109,16 +109,14 @@ def create_deployment():
         tests_passed=data.get('tests_passed', 0),
         tests_total=data.get('tests_total', 0),
         tests_failed=data.get('tests_failed', 0),
-        security_scan_passed=data.get('security_scan_passed', True),
-        security_vulnerabilities=data.get('security_vulnerabilities', 0),
+        #security_scan_passed=data.get('security_scan_passed', True),
+        #security_vulnerabilities=data.get('security_vulnerabilities', 0),
         errors_count=data.get('errors_count', 0)
     )
     
     db.session.add(deployment)
     db.session.commit()
     
-
-
 
 
     if 'errors' in data and isinstance(data['errors'], list):

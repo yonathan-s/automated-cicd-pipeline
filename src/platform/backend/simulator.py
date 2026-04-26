@@ -1,5 +1,4 @@
 
-
 import random
 from datetime import datetime, timedelta
 from models import db, Deployment, DeploymentError
